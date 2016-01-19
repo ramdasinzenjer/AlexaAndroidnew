@@ -33,6 +33,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
     private final static int RESULT_SPEECH = 11;
 
     //Our Amazon application product ID, this is passed to the server when we authenticate
+    //this will only work with the right application signature
     private static final String PRODUCT_ID = "interactive_conversation";
 
 

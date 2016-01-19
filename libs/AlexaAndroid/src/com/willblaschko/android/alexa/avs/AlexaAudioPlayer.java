@@ -18,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by will on 12/9/2015.
+ * A class that abstracts the Android MediaPlayer and adds additional functionality to handle AvsItems
+ * as well as properly handle multiple callbacks--be care not to leak Activities by not removing the callback
  */
 public class AlexaAudioPlayer {
 
@@ -31,10 +32,20 @@ public class AlexaAudioPlayer {
     private AvsItem mItem;
     private List<Callback> mCallbacks = new ArrayList<>();
 
+    /**
+     * Create our new AlexaAudioPlayer
+     * @param context any context, we will get the application level to store locally
+     */
     private AlexaAudioPlayer(Context context){
        mContext = context.getApplicationContext();
     }
 
+    /**
+     * Get a reference to the AlexaAudioPlayer instance, if it's null, we will create a new one
+     * using the supplied context.
+     * @param context any context, we will get the application level to store locally
+     * @return our instance of the AlexaAudioPlayer
+     */
     public static AlexaAudioPlayer getInstance(Context context){
         if(mInstance == null){
             mInstance = new AlexaAudioPlayer(context);
@@ -42,6 +53,11 @@ public class AlexaAudioPlayer {
         return mInstance;
     }
 
+    /**
+     * Return a reference to the MediaPlayer instance, if it does not exist,
+     * then create it and configure it to our needs
+     * @return Android native MediaPlayer
+     */
     private MediaPlayer getMediaPlayer(){
         if(mMediaPlayer == null){
             mMediaPlayer = new MediaPlayer();
@@ -54,86 +70,144 @@ public class AlexaAudioPlayer {
         return mMediaPlayer;
     }
 
+    /**
+     * Add a callback to our AlexaAudioPlayer, this is added to our list of callbacks
+     * @param callback Callback that listens to changes of player state
+     */
     public void addCallback(Callback callback){
         if(!mCallbacks.contains(callback)){
             mCallbacks.add(callback);
         }
     }
 
+    /**
+     * Remove a callback from our AlexaAudioPlayer, this is removed from our list of callbacks
+     * @param callback Callback that listens to changes of player state
+     */
     public void removeCallback(Callback callback){
         mCallbacks.remove(callback);
     }
 
+    /**
+     * A helper function to play an AvsSpeakItem, this is passed to play() and handled accordingly,
+     * @param item a speak type item
+     */
     public void playItem(AvsSpeakItem item){
         play(item);
     }
+
+    /**
+     * A helper function to play an AvsPlayItem, this is passed to play() and handled accordingly,
+     * @param item a play type item, usually a url
+     */
     public void playItem(AvsPlayItem item){
         play(item);
     }
 
+    /**
+     * Request our MediaPlayer to play an item, if it's an AvsPlayItem (url, usually), we set that url as our data source for the MediaPlayer
+     * if it's an AvsSpeakItem, then we write the raw audio to a file and then read it back using the MediaPlayer
+     * @param item
+     */
     private void play(AvsItem item){
         if(isPlaying()){
             Log.w(TAG, "Already playing an item, did you mean to play another?");
         }
         mItem = item;
         if(getMediaPlayer().isPlaying()){
+            //if we're playing, stop playing before we continue
             getMediaPlayer().stop();
         }
         if(mItem instanceof AvsPlayItem){
+            //cast our item for easy access
             AvsPlayItem playItem = (AvsPlayItem) item;
             try {
+                //reset our player
                 getMediaPlayer().reset();
+                //play new url
                 getMediaPlayer().setDataSource(playItem.getUrl());
             } catch (IOException e) {
                 e.printStackTrace();
+                //bubble up our error
                 bubbleUpError(e);
             }
         }else if(mItem instanceof AvsSpeakItem){
+            //cast our item for easy access
             AvsSpeakItem playItem = (AvsSpeakItem) item;
+            //write out our raw audio data to a file
             File path=new File(mContext.getCacheDir()+"/playfile.3gp");
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(path);
                 fos.write(read(playItem.getAudio()));
                 fos.close();
+                //reset our player
                 getMediaPlayer().reset();
+                //play our newly-written file
                 getMediaPlayer().setDataSource(mContext.getCacheDir() + "/playfile.3gp");
             } catch (IOException e) {
                 e.printStackTrace();
+                //bubble up our error
                 bubbleUpError(e);
             }
 
         }
+        //prepare our player, this will start once prepared because of mPreparedListener
         getMediaPlayer().prepareAsync();
     }
 
+    /**
+     * Turn the AVS input stream response into a byte array to write to our file
+     * @param bais the byte input stream coming back from AVS
+     * @return a byte array equal to the input stream
+     * @throws IOException if we can't read from the input stream
+     */
     private byte[] read(ByteArrayInputStream bais) throws IOException {
         byte[] array = new byte[bais.available()];
         bais.read(array);
         return array;
     }
 
+    /**
+     * Check whether our MediaPlayer is currently playing
+     * @return true playing, false not
+     */
     public boolean isPlaying(){
         return getMediaPlayer().isPlaying();
     }
 
+    /**
+     * A helper function to pause the MediaPlayer
+     */
     public void pause(){
         getMediaPlayer().pause();
     }
 
+    /**
+     * A helper function to play the MediaPlayer
+     */
     public void play(){
         getMediaPlayer().start();
     }
 
+    /**
+     * A helper function to stop the MediaPlayer
+     */
     public void stop(){
         getMediaPlayer().stop();
     }
 
+    /**
+     * A helper function to release the media player and remove it from memory
+     */
     public void release(){
         getMediaPlayer().release();
         mMediaPlayer = null;
     }
 
+    /**
+     * A callback to keep track of the state of the MediaPlayer and various AvsItem states
+     */
     public interface Callback{
         void playerPrepared(AvsItem pendingItem);
         void itemComplete(AvsItem completedItem);
@@ -141,12 +215,19 @@ public class AlexaAudioPlayer {
         void dataError(Exception e);
     }
 
+    /**
+     * Pass our Exception to all the Callbacks, handle it at the top level
+     * @param e the thrown exception
+     */
     private void bubbleUpError(Exception e){
         for(Callback callback: mCallbacks){
             callback.dataError(e);
         }
     }
 
+    /**
+     * Pass our MediaPlayer completion state to all the Callbacks, handle it at the top level
+     */
     private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
         @Override
         public void onCompletion(MediaPlayer mp) {
@@ -155,6 +236,10 @@ public class AlexaAudioPlayer {
             }
         }
     };
+
+    /**
+     * Pass our MediaPlayer prepared state to all the Callbacks, handle it at the top level
+     */
     private MediaPlayer.OnPreparedListener mPreparedListener = new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
@@ -164,6 +249,10 @@ public class AlexaAudioPlayer {
             mMediaPlayer.start();
         }
     };
+
+    /**
+     * Pass our MediaPlayer error state to all the Callbacks, handle it at the top level
+     */
     private MediaPlayer.OnErrorListener mErrorListener = new MediaPlayer.OnErrorListener() {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {

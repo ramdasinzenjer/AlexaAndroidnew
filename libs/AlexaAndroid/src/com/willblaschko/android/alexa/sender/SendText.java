@@ -12,7 +12,8 @@ import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import java.io.IOException;
 
 /**
- * Created by will on 12/7/2015.
+ * A subclass of SendData that allows an arbitrary text string to be sent to the AVS servers, translated through Google's text to speech engine
+ * This speech is rendered using the VoiceHelper utility class, and is done on whatever thread this call is running
  */
 public class SendText extends SendData {
 
@@ -20,15 +21,29 @@ public class SendText extends SendData {
 
     long start = 0;
 
+    /**
+     * Use VoiceHelper utility to create an audio file from arbitrary text using Text-To-Speech to be passed to the AVS servers
+     * @param context local/application context
+     * @param url the URL to which we're sending the AVS post
+     * @param accessToken our user's access token for the server
+     * @param text the text we want to translate into speech
+     * @param callback our event callbacks
+     * @throws IOException
+     */
     public void sendText(Context context, String url, String accessToken, String text, final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
 
         Log.i(TAG, "Starting SendText procedure");
         start = System.currentTimeMillis();
 
+        //add a pause to the end to be better understood
         if(!TextUtils.isEmpty(text)){
             text = text + ".....";
         }
+
+        //call the parent class's preparePost() in order to prepare our URL POST
         preparePost(url, accessToken);
+
+        //get our VoiceHelper and use an async callback to get the data and send it off to the AVS server via completePost()
         VoiceHelper voiceHelper = VoiceHelper.getInstance(context);
         voiceHelper.getSpeechFromText(text, new VoiceHelper.SpeechFromTextCallback() {
             @Override

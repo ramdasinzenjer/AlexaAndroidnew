@@ -22,7 +22,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 /**
- * Created by wblaschko on 8/13/15.
+ * A static instance class that manages Authentication with the Amazon servers, it uses the TokenManager helper class to do most of its operations
+ * including get new/refresh tokens from the server
+ *
+ * Some more details here: https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/docs/authorizing-your-alexa-enabled-product-from-a-website
  */
 public class AuthorizationManager {
 
@@ -37,6 +40,14 @@ public class AuthorizationManager {
 
     private static final String CODE_VERIFIER = "code_verifier";
 
+    /**
+     * Create a new Auth Manager based on the supplied product id
+     *
+     * This will throw an error if our assets/api_key.txt file, our package name, and our signing key don't match the product ID, this is
+     * a common sticking point for the application not working
+     * @param context
+     * @param productId
+     */
     public AuthorizationManager(@NotNull Context context, @NotNull String productId){
         mContext = context;
         mProductId = productId;
@@ -51,7 +62,11 @@ public class AuthorizationManager {
     }
 
 
-    //todo eventually check to see whether we have a saved refresh key and try that first
+    /**
+     * Check if the user is currently ogged in by checking for a valid access token (present and not expired).
+     * @param context
+     * @param callback
+     */
     public void checkLoggedIn(Context context, final AsyncCallback<Boolean, Throwable> callback){
         TokenManager.getAccessToken(mAuthManager, context, new TokenManager.TokenCallback() {
             @Override
@@ -67,6 +82,23 @@ public class AuthorizationManager {
         });
     }
 
+    /**
+     * Request authorization for the user to be able to use the application, this opens an intent that feeds back to the app:
+     *
+     * <intent-filter>
+     * <action android:name="android.intent.action.VIEW" />
+     * <category android:name="android.intent.category.DEFAULT" />
+     * <category android:name="android.intent.category.BROWSABLE" />
+     * <!-- host should be our application package e.g.: com.example.yourapp.whee //-->
+     * <data
+     * android:host="APPLICATION.PACKAGE"
+     * android:scheme="amzn" />
+     * </intent-filter>
+     *
+     * Make sure this is in the main application's AndroidManifest
+     *
+     * @param callback our state change callback
+     */
     public void authorizeUser(AuthorizationCallback callback){
         mCallback = callback;
 
@@ -86,6 +118,7 @@ public class AuthorizationManager {
         mAuthManager.authorize(APP_SCOPES, options, authListener);
     }
 
+    //An authorization callback to check when we get success/failure from the Amazon authentication server
     private AuthorizationListener authListener = new AuthorizationListener() {
         /**
          * Authorization was completed successfully.
@@ -155,21 +188,34 @@ public class AuthorizationManager {
     };
 
 
-
+    /**
+     * Return our stored code verifier, which needs to be consistent, if this doesn't exist, we create a new one and store the new result
+     * @return the String code verifier
+     */
     private String getCodeVerifier(){
         if(Util.getPreferences(mContext).contains(CODE_VERIFIER)){
             return Util.getPreferences(mContext).getString(CODE_VERIFIER, "");
         }
+
+        //no verifier found, make and store the new one
         String verifier = createCodeVerifier();
         Util.getPreferences(mContext).edit().putString(CODE_VERIFIER, verifier).apply();
         return verifier;
     }
 
+    /**
+     * Create a String hash based on the code verifier, this is used to verify the Token exchanges
+     * @return
+     */
     private String getCodeChallenge(){
         String verifier = getCodeVerifier();
         return base64UrlEncode(getHash(verifier));
     }
 
+    /**
+     * Create a new code verifier for our token exchanges
+     * @return the new code verifier
+     */
     public static String createCodeVerifier() {
         char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
         StringBuilder sb = new StringBuilder();
@@ -183,6 +229,14 @@ public class AuthorizationManager {
     }
 
 
+    /**
+     * Encode a byte array into a string, while trimming off the last characters, as required by the Amazon token server
+     *
+     * See: http://brockallen.com/2014/10/17/base64url-encoding/
+     *
+     * @param arg our hashed string
+     * @return a new Base64 encoded string based on the hashed string
+     */
     public static String base64UrlEncode(byte[] arg)
     {
         String s = Base64.encodeToString(arg, 0); // Regular base64 encoder
@@ -192,6 +246,11 @@ public class AuthorizationManager {
         return s;
     }
 
+    /**
+     * Hash a string based on the SHA-256 message digest
+     * @param password
+     * @return
+     */
     public static byte[] getHash(String password) {
         MessageDigest digest=null;
         try {

@@ -1,7 +1,7 @@
 package com.willblaschko.android.alexa.callbacks;
 
 /**
- * Created by wblaschko on 8/13/15.
+ * Implemented version of AuthorizationCallback
  */
 public class ImplAuthorizationCallback implements AuthorizationCallback {
 

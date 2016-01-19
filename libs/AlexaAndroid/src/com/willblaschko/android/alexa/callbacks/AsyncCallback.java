@@ -1,7 +1,7 @@
 package com.willblaschko.android.alexa.callbacks;
 
 /**
- * Created by wblaschko on 12/4/14.
+ * A generic callback to handle four states of asynchronous operations
  */
 public interface AsyncCallback<D, E>{
     void start();

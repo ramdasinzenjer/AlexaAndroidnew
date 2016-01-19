@@ -7,13 +7,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 /**
- * Created by wblaschko on 2/28/15.
+ * A Volley singleton to handle our Authorization Token requests
+ *
+ * See: http://developer.android.com/training/volley/requestqueue.html
  */
 public class VolleySingleton {
     private RequestQueue mRequestQueue;
     private static VolleySingleton mInstance;
-
-    public final static String DEFAULT_REQUEST_TAG = "POC";
 
     Context mContext;
 

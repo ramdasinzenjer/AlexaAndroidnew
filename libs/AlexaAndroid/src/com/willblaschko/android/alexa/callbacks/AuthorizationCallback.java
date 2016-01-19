@@ -1,7 +1,7 @@
 package com.willblaschko.android.alexa.callbacks;
 
 /**
- * Created by wblaschko on 8/13/15.
+ * A callback to handle three states of Amazon authorization
  */
 public interface AuthorizationCallback {
     void onCancel();
