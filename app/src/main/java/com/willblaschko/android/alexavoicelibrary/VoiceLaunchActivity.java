@@ -58,9 +58,6 @@ public class VoiceLaunchActivity extends AppCompatActivity {
 
         //Remove the current item and check for more items once we've finished playing
         mAudioPlayer.addCallback(mAlexaAudioPlayerCallback);
-
-        //Run an async check on whether we're logged in or not
-        mAlexaManager.checkLoggedIn(mLoggedInCheck);
     }
 
     @Override
