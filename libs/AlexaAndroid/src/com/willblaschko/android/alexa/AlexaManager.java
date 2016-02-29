@@ -522,6 +522,7 @@ public class AlexaManager {
                 JsonObject payload = directive.getJsonObject("payload");
                 items.addAll(parsePlayItems(response, payload.getJsonObject("audioItem")));
             }
+            //todo add mute item here (boolean to mute/not), not sure exact directive name
         }
         return items;
     }
