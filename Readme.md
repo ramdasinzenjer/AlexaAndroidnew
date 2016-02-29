@@ -35,7 +35,8 @@ AlexaManager mAlexaManager = AlexaManager.getInstance(this, PRODUCT_ID);
 //instantiate our audio player
 AlexaAudioPlayer mAudioPlayer = AlexaAudioPlayer.getInstance(this);
 
-//Remove the current item and check for more items once we've finished playing
+//Remove the current item and check for more items once
+//we've finished playing
 mAudioPlayer.addCallback(mAlexaAudioPlayerCallback);
 ```
 
@@ -56,16 +57,20 @@ mAlexaManager.logIn(AuthorizationCallback...);
 //Send a request to the Alexa server and process results on the AsyncCallback
 mAlexaManager.sendTextRequest(REQUEST_TYPE.TYPE_VOICE_RESPONSE, String ..., AsyncCallback ...);
 
-//Start creating a request using audio, for Android-M make sure we have permission to access microphone first
+//Start creating a request using audio, for Android-M make
+//sure we have permission to access microphone first
 mAlexaManager.startRecording(REQUEST_TYPE.TYPE_VOICE_RESPONSE, AsyncCallback...);
 
-//Start creating a request using audio but prepend an asset (raw audio recorded at the correct bitrate) to the front of the request: "Open MySkillKit and..."
+//Start creating a request using audio but prepend an asset
+//(raw audio recorded at the correct bitrate) to the front of the request: "Open MySkillKit and..."
 mAlexaManager.startRecording(REQUEST_TYPE.TYPE_VOICE_RESPONSE, int..., AsyncCallback...);
 
-//Start creating a request using audio but prepend a byte array (raw audio recorded at the correct bitrate) to the front of the request: "Open MySkillKit and..."
+//Start creating a request using audio but prepend a byte array
+//(raw audio recorded at the correct bitrate) to the front of the request: "Open MySkillKit and..."
 mAlexaManager.startRecording(REQUEST_TYPE.TYPE_VOICE_RESPONSE, byte[]..., AsyncCallback...);
 
-//Stop recording the request and send it to the Alexa server, process results on the AsyncCallback
+//Stop recording the request and send it to the Alexa server,
+//process results on the AsyncCallback
 mAlexaManager.stopRecording(AsynCallback...);
 
 //Play an AvsPlayItem returned by our requests
