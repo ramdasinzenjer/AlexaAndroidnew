@@ -66,6 +66,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //remove callback to avoid memory leaks
         mAudioPlayer.removeCallback(mAlexaAudioPlayerCallback);
     }
 
@@ -73,6 +74,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        //listen for a result from our get speech to text request
         switch (requestCode) {
             case RESULT_SPEECH: {
                 if (resultCode == RESULT_OK && null != data) {
