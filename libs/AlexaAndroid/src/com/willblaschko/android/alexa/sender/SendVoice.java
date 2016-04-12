@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import com.willblaschko.android.alexa.avs.AvsException;
 import com.willblaschko.android.alexa.avs.AvsResponse;
@@ -29,6 +30,7 @@ public class SendVoice extends SendData{
 
     private boolean mIsRecording = false;
 
+    private Object mLock = new Object();
 
     private static final int AUDIO_RATE = 16000;
     private static final int BUFFER_SIZE = 800;
@@ -45,7 +47,9 @@ public class SendVoice extends SendData{
      * @throws IOException
      */
     public void startRecording(Context context, String url, String accessToken, @Nullable byte[] buffer, @Nullable AsyncCallback<Void, Exception> callback) throws IOException {
-        mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, AUDIO_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
+        synchronized(mLock) {
+            mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, AUDIO_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
+        }
         mCallback = callback;
         mIsRecording = true;
 
@@ -67,9 +71,11 @@ public class SendVoice extends SendData{
      */
     public AvsResponse stopRecording() throws IOException, AvsException {
         mIsRecording = false;
-        if(mAudioRecord != null) {
-            mAudioRecord.stop();
-            mAudioRecord.release();
+        synchronized (mLock) {
+            if(mAudioRecord != null) {
+                mAudioRecord.stop();
+                mAudioRecord.release();
+            }
         }
         return completePost();
     }
@@ -92,7 +98,18 @@ public class SendVoice extends SendData{
             public void run() {
                 byte[] data = new byte[BUFFER_SIZE];
                 while(mIsRecording) {
-                    int count = audioRecord.read(data, 0, BUFFER_SIZE);
+                    int count = -99;
+                    synchronized (mLock) {
+                        count = audioRecord.read(data, 0, BUFFER_SIZE);
+                    }
+                    if (count <= 0) {
+                        Log.e(TAG, "audio read fail, error code:" + count);
+                        mIsRecording = false;
+                        if(mCallback != null){
+                            mCallback.failure(new RuntimeException("audio read fail, error code:" + count));
+                        }
+                        break;
+                    }
                     try{
                         outputStream.write(data, 0, count);
                         outputStream.flush();

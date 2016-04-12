@@ -280,6 +280,13 @@ public class AlexaManager {
      * @param callback
      */
     public void stopRecording(@Nullable final AsyncCallback<List<AvsItem>, Exception> callback){
+        if (!mIsRecording) {
+            if(callback != null) {
+                callback.failure(new RuntimeException("recording not started"));
+            }
+            return;
+        }
+
         mIsRecording = false;
         if(callback != null) {
             callback.start();
