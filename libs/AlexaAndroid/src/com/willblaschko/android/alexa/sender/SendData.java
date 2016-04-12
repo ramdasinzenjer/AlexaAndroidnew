@@ -142,6 +142,7 @@ public abstract class SendData {
             if(responseBoundary == null){
                 if(mCallback != null){
                     mCallback.failure(new IllegalArgumentException("No data found in response."));
+                    mCallback.complete();
                 }
                 return null;
             }
@@ -157,12 +158,14 @@ public abstract class SendData {
                     AvsException avs = new AvsException(responseCode + ": " + IOUtils.toString(error));
                     if(mCallback != null){
                         mCallback.failure(e);
+                        mCallback.complete();
                     }
                     throw avs;
                 }
             }
             if(mCallback != null){
                 mCallback.failure(e);
+                mCallback.complete();
             }
             throw e; // otherwise just throw the original exception
         } finally {
@@ -247,6 +250,7 @@ public abstract class SendData {
         } catch (Exception e) {
             if(mCallback != null){
                 mCallback.failure(e);
+                mCallback.complete();
             }
         }
         return null;
@@ -304,6 +308,7 @@ public abstract class SendData {
             e.printStackTrace();
             if(mCallback != null){
                 mCallback.failure(e);
+                mCallback.complete();
             }
         }
     }

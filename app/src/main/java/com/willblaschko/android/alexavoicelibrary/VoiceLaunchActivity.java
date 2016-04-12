@@ -19,6 +19,7 @@ import com.willblaschko.android.alexa.avs.items.AvsSpeakItem;
 import com.willblaschko.android.alexa.avs.items.AvsStopItem;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
+import com.willblaschko.android.alexavoicelibrary.recommendation.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
  * so that a user can send a command to Alexa.
  */
 public class VoiceLaunchActivity extends AppCompatActivity {
-    private static final String TAG = "VocieLaunchActivity";
+    private static final String TAG = "VoiceLaunchActivity";
     private final static int RESULT_SPEECH = 11;
 
     //Our Amazon application product ID, this is passed to the server when we authenticate
@@ -46,6 +47,9 @@ public class VoiceLaunchActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+
+        NotificationHelper.createNotification(this);
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_voice_launch);
@@ -58,13 +62,33 @@ public class VoiceLaunchActivity extends AppCompatActivity {
 
         //Remove the current item and check for more items once we've finished playing
         mAudioPlayer.addCallback(mAlexaAudioPlayerCallback);
+
+        //check to make sure we're logged in
+        mAlexaManager.checkLoggedIn(mLoggedInCheck);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mAudioPlayer != null){
+            mAudioPlayer.stop();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //remove callback to avoid memory leaks
-        mAudioPlayer.removeCallback(mAlexaAudioPlayerCallback);
+
+        if(mAudioPlayer != null){
+            //remove callback to avoid memory leaks
+            mAudioPlayer.removeCallback(mAlexaAudioPlayerCallback);
+            mAudioPlayer.release();
+        }
     }
 
     @Override
@@ -176,8 +200,8 @@ public class VoiceLaunchActivity extends AppCompatActivity {
         public void success(Boolean result) {
 
             if(result){
-            //we're logged in, do our voice request
-            startListening();
+                //we're logged in, do our voice request
+                startListening();
 
             }else{
                 //we're not logged in, so ask user to log in

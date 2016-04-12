@@ -32,6 +32,10 @@ public class SendText extends SendData {
      */
     public void sendText(Context context, String url, String accessToken, String text, final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
 
+        if(callback != null){
+            callback.start();
+        }
+
         Log.i(TAG, "Starting SendText procedure");
         start = System.currentTimeMillis();
 
@@ -56,8 +60,10 @@ public class SendText extends SendData {
 
                     Log.i(TAG, "Audio sent");
                     Log.i(TAG, "Audio creation process took: " + (System.currentTimeMillis() - start));
-
-                    callback.success(completePost());
+                    if(callback != null) {
+                        callback.success(completePost());
+                        callback.complete();
+                    }
 
                 } catch (IOException e) {
                     onError(e);
@@ -69,7 +75,10 @@ public class SendText extends SendData {
 
             @Override
             public void onError(Exception e) {
-                callback.failure(e);
+                if(callback != null){
+                    callback.failure(e);
+                    callback.complete();
+                }
             }
         });
     }

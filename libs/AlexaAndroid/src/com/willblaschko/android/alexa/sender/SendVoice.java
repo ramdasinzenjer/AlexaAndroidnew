@@ -101,12 +101,14 @@ public class SendVoice extends SendData{
                         mIsRecording = false;
                         if(mCallback != null){
                             mCallback.failure(e);
+                            mCallback.complete();
                         }
                     }catch (NullPointerException e){
                         e.printStackTrace();
                         mIsRecording = false;
                         if(mCallback != null){
                             mCallback.failure(e);
+                            mCallback.complete();
                         }
                     }
                 }
