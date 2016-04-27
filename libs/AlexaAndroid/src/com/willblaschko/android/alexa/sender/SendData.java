@@ -208,10 +208,12 @@ public abstract class SendData {
         //get the json data
         mpStream.readBodyData(json);
 
+
         //logging for sanity's stake
         if(BuildConfig.DEBUG) {
             Log.i(TAG, json.toString(Charset.defaultCharset().displayName()));
         }
+
 
         AvsResponse response = new AvsResponse(Json.createReader(new ByteArrayInputStream(json.toByteArray())));
 

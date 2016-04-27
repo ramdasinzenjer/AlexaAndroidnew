@@ -115,7 +115,7 @@ public class TokenManager {
      * @param callback the TokenCallback where we return our tokens when successful
      */
     public static void getAccessToken(@NotNull AmazonAuthorizationManager authorizationManager, @NotNull Context context, @NotNull TokenCallback callback) {
-        SharedPreferences preferences = Util.getPreferences(context);
+        SharedPreferences preferences = Util.getPreferences(context.getApplicationContext());
         //if we have an access token
         if(preferences.contains(PREF_ACCESS_TOKEN)){
 
@@ -200,11 +200,12 @@ public class TokenManager {
         REFRESH_TOKEN = tokenResponse.refresh_token;
         ACCESS_TOKEN = tokenResponse.access_token;
 
-        SharedPreferences.Editor preferences = Util.getPreferences(context).edit();
+        SharedPreferences.Editor preferences = Util.getPreferences(context.getApplicationContext()).edit();
         preferences.putString(PREF_ACCESS_TOKEN, ACCESS_TOKEN);
         preferences.putString(PREF_REFRESH_TOKEN, REFRESH_TOKEN);
-        preferences.putLong(PREF_TOKEN_EXPIRES, System.currentTimeMillis() + tokenResponse.expires_in);
-        preferences.apply();
+        //comes back in seconds, needs to be milis
+        preferences.putLong(PREF_TOKEN_EXPIRES, (System.currentTimeMillis() + tokenResponse.expires_in * 1000));
+        preferences.commit();
     }
 
     public interface TokenResponseCallback {

@@ -105,6 +105,8 @@ public class VoiceLaunchActivity extends AppCompatActivity {
                     if(text.size() > 0) {
                         sendVoiceToAlexa(text.get(0));
                     }
+                }else{
+                    this.finish();
                 }
                 break;
             }

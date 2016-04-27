@@ -30,7 +30,7 @@ public class SendText extends SendData {
      * @param callback our event callbacks
      * @throws IOException
      */
-    public void sendText(Context context, String url, String accessToken, String text, final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
+    public void sendText(final Context context, final String url, final String accessToken, String text, final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
 
         if(callback != null){
             callback.start();
@@ -44,12 +44,21 @@ public class SendText extends SendData {
             text = text + ".....";
         }
 
+        final String input = text;
+
+
         //call the parent class's preparePost() in order to prepare our URL POST
-        preparePost(url, accessToken);
+        try {
+            preparePost(url, accessToken);
+        } catch (IOException e) {
+            e.printStackTrace();
+            callback.failure(e);
+            callback.complete();
+        }
 
         //get our VoiceHelper and use an async callback to get the data and send it off to the AVS server via completePost()
         VoiceHelper voiceHelper = VoiceHelper.getInstance(context);
-        voiceHelper.getSpeechFromText(text, new VoiceHelper.SpeechFromTextCallback() {
+        voiceHelper.getSpeechFromText(input, new VoiceHelper.SpeechFromTextCallback() {
             @Override
             public void onSuccess(final byte[] data){
 
@@ -81,5 +90,6 @@ public class SendText extends SendData {
                 }
             }
         });
+
     }
 }

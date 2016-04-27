@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.avs.AvsException;
@@ -23,14 +24,14 @@ import java.io.OutputStream;
  *
  * Using the byte[] buffer in startRecording(), it's possible to prepend any audio recorded with pre-recorded or generated audio, in order to simplify or complicate the command.
  */
-public class SendVoice extends SendData{
+public class SendVoice extends SendData {
     private final static String TAG = "SendVoice";
 
     private AudioRecord mAudioRecord;
 
     private boolean mIsRecording = false;
 
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
 
     private static final int AUDIO_RATE = 16000;
     private static final int BUFFER_SIZE = 800;
@@ -46,14 +47,32 @@ public class SendVoice extends SendData{
      * @param callback our callback to notify us when we change states
      * @throws IOException
      */
-    public void startRecording(Context context, String url, String accessToken, @Nullable byte[] buffer, @Nullable AsyncCallback<Void, Exception> callback) throws IOException {
+    public void startRecording(Context context, final String url, final String accessToken, @Nullable byte[] buffer, @Nullable final AsyncCallback<Void, Exception> callback) throws IOException {
         synchronized(mLock) {
             mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, AUDIO_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
         }
+
+        if(callback != null){
+            callback.start();
+        }
+
         mCallback = callback;
         mIsRecording = true;
-
-        preparePost(url, accessToken);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                synchronized(mLock) {
+                    try {
+                        preparePost(url, accessToken);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        callback.failure(e);
+                        callback.complete();
+                    }
+                }
+                return null;
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         if(buffer != null){
             mOutputStream.write(buffer);

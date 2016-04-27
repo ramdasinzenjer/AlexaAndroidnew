@@ -14,6 +14,7 @@ import com.willblaschko.android.alexa.avs.items.AvsSpeakItem;
 import com.willblaschko.android.alexa.avs.items.AvsStopItem;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
+import com.willblaschko.android.alexa.sender.SendAudio;
 import com.willblaschko.android.alexa.sender.SendText;
 import com.willblaschko.android.alexa.sender.SendVoice;
 
@@ -41,6 +42,7 @@ public class AlexaManager {
     private AuthorizationManager mAuthorizationManager;
     private SendVoice mSendVoice;
     private SendText mSendText;
+    private SendAudio mSendAudio;
     private VoiceHelper mVoiceHelper;
     private Context mContext;
     private boolean mIsRecording = false;
@@ -50,6 +52,7 @@ public class AlexaManager {
         mAuthorizationManager = new AuthorizationManager(mContext, productId);
         mSendVoice = new SendVoice();
         mSendText = new SendText();
+        mSendAudio = new SendAudio();
         mVoiceHelper = VoiceHelper.getInstance(mContext);
     }
 
@@ -231,7 +234,7 @@ public class AlexaManager {
                             });
                             return null;
                         }
-                    }.execute();
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
                     //user is not logged in, log them in
                     logIn(new AuthorizationCallback() {
@@ -336,7 +339,7 @@ public class AlexaManager {
                 return null;
             }
 
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 
@@ -436,7 +439,7 @@ public class AlexaManager {
                         protected void onPostExecute(AvsResponse avsResponse) {
                             super.onPostExecute(avsResponse);
                         }
-                    }.execute();
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
                     //if the user is not logged in, log them in and then call the function again
                     logIn(new AuthorizationCallback() {
@@ -474,6 +477,136 @@ public class AlexaManager {
         });
     }
 
+
+    /**
+     * Send raw audio data to the Alexa servers, this is a more advanced option to bypass other issues (like only one item being able to use the mic at a time).
+     *
+     * @param requestType our request type, currently there is only one "speechrecognizer"
+     * @param data the audio data that we want to send to the AVS server
+     * @param callback the state change callback
+     */
+    public void sendAudioRequest(final int requestType, final byte[] data, final AsyncCallback<List<AvsItem>, Exception> callback){
+        //check if the user is already logged in
+        mAuthorizationManager.checkLoggedIn(mContext, new AsyncCallback<Boolean, Throwable>() {
+            @Override
+            public void start() {
+
+            }
+
+            @Override
+            public void success(Boolean result) {
+                if (result) {
+                    //if the user is logged in
+
+                    //set our URL
+                    final String url;
+                    switch (requestType) {
+                        default:
+                            url = "https://access-alexa-na.amazon.com/v1/avs/speechrecognizer/recognize/";
+                    }
+                    //get our access token
+                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
+                        @Override
+                        public void onSuccess(final String token) {
+                            //do this off the main thread
+                            new AsyncTask<Void, Void, AvsResponse>() {
+                                @Override
+                                protected AvsResponse doInBackground(Void... params) {
+
+
+                                    try {
+                                        mSendAudio.sendAudio(mContext, url, token, data, new AsyncCallback<AvsResponse, Exception>() {
+                                            @Override
+                                            public void start() {
+                                                if (callback != null) {
+                                                    callback.start();
+                                                }
+                                            }
+
+                                            @Override
+                                            public void success(AvsResponse result) {
+                                                //parse our response
+                                                if (callback != null) {
+                                                    callback.success(parseResponse(result));
+                                                }
+                                            }
+
+                                            @Override
+                                            public void failure(Exception error) {
+                                                //bubble up the error
+                                                if (callback != null) {
+                                                    callback.failure(error);
+                                                }
+                                            }
+
+                                            @Override
+                                            public void complete() {
+                                                if (callback != null) {
+                                                    callback.complete();
+                                                }
+                                            }
+                                        });
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        //bubble up the error
+                                        if(callback != null) {
+                                            callback.failure(e);
+                                        }
+                                    }
+
+                                    return null;
+                                }
+
+
+                                @Override
+                                protected void onPostExecute(AvsResponse avsResponse) {
+                                    super.onPostExecute(avsResponse);
+                                }
+                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable e) {
+
+                        }
+                    });
+                } else {
+                    //if the user is not logged in, log them in and then call the function again
+                    logIn(new AuthorizationCallback() {
+                        @Override
+                        public void onCancel() {
+
+                        }
+
+                        @Override
+                        public void onSuccess() {
+                            //call our function again
+                            sendAudioRequest(requestType, data, callback);
+                        }
+
+                        @Override
+                        public void onError(Exception error) {
+                            if (callback != null) {
+                                //bubble up the error
+                                callback.failure(error);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void failure(Throwable error) {
+
+            }
+
+            @Override
+            public void complete() {
+
+            }
+        });
+    }
+
     /**
      * Parse the AvsResponse response sent (and already partially parsed) by the AVS server, this has a variety of commands or
      * objects for the control to play
@@ -483,7 +616,7 @@ public class AlexaManager {
     private List<AvsItem> parseResponse(AvsResponse response){
 
         //if(BuildConfig.DEBUG){
-            //Log.i(TAG, new Gson().toJson(response));
+        //Log.i(TAG, new Gson().toJson(response));
         //}
 
         List<AvsItem> items = new ArrayList<>();
