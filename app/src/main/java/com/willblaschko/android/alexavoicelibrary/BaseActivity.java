@@ -125,7 +125,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void complete() {
             Log.i(TAG, "Voice Complete");
-            new Handler(Looper.myLooper()).post(new Runnable() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     long totalTime = System.currentTimeMillis() - startTime;
@@ -172,7 +172,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         //if we're out of things, hang up the phone and move on
         if (avsQueue.size() == 0) {
             setState(STATE_FINISHED);
-            new Handler(Looper.myLooper()).post(new Runnable() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     long totalTime = System.currentTimeMillis() - startTime;
