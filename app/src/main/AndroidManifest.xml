@@ -9,13 +9,10 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Transparent"
+        android:theme="@style/AppTheme"
         android:name=".AlexaApplication">
 
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".VoiceLaunchActivity"
-            android:theme="@style/Theme.Transparent"
-            android:launchMode="singleInstance">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -23,6 +20,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".VoiceLaunchActivity"
+            android:theme="@style/Theme.Transparent"
+            android:launchMode="singleInstance">
+
         </activity>
 
         <activity android:name=".LoginWebViewActivity">

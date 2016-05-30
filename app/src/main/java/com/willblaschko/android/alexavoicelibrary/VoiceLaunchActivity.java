@@ -10,15 +10,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.willblaschko.android.alexa.AlexaManager;
-import com.willblaschko.android.alexa.avs.AlexaAudioPlayer;
-import com.willblaschko.android.alexa.avs.items.AvsClearQueueItem;
-import com.willblaschko.android.alexa.avs.items.AvsItem;
-import com.willblaschko.android.alexa.avs.items.AvsListenItem;
-import com.willblaschko.android.alexa.avs.items.AvsPlayItem;
-import com.willblaschko.android.alexa.avs.items.AvsSpeakItem;
-import com.willblaschko.android.alexa.avs.items.AvsStopItem;
+import com.willblaschko.android.alexa.audioplayer.AlexaAudioPlayer;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
+import com.willblaschko.android.alexa.interfaces.AvsItem;
+import com.willblaschko.android.alexa.interfaces.AvsResponse;
+import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceEnqueuedItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsStopItem;
+import com.willblaschko.android.alexa.interfaces.speechrecognizer.AvsListenItem;
+import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 import com.willblaschko.android.alexavoicelibrary.recommendation.NotificationHelper;
 
 import java.util.ArrayList;
@@ -164,7 +165,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
      *             text is "wash my car").
      */
     private void sendVoiceToAlexa(String text){
-        mAlexaManager.sendTextRequest(AlexaManager.REQUEST_TYPE.TYPE_VOICE_RESPONSE, text, mVoiceCallback);
+        mAlexaManager.sendTextRequest(text, mVoiceCallback);
     }
 
     //Our callback that deals with removing played items in our media player and then checking to see if more items exist
@@ -250,14 +251,14 @@ public class VoiceLaunchActivity extends AppCompatActivity {
     };
 
     //async callback for commands sent to Alexa Voice
-    private AsyncCallback<List<AvsItem>, Exception> mVoiceCallback = new AsyncCallback<List<AvsItem>, Exception>() {
+    private AsyncCallback<AvsResponse, Exception> mVoiceCallback = new AsyncCallback<AvsResponse, Exception>() {
         @Override
         public void start() {
             Log.i(TAG, "Voice Start");
         }
 
         @Override
-        public void success(List<AvsItem> result) {
+        public void success(AvsResponse result) {
             Log.i(TAG, "Voice Success");
             handleResponse(result);
         }
@@ -284,7 +285,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
             //iterate backwards to avoid changing our array positions and getting all the nasty errors that come
             //from doing that
             for(int i = response.size() - 1; i >= 0; i--){
-                if(response.get(i) instanceof AvsClearQueueItem){
+                if(response.get(i) instanceof AvsReplaceEnqueuedItem){
                     //clear our queue
                     mAvsItemQueue.clear();
                     //remove item
@@ -316,11 +317,11 @@ public class VoiceLaunchActivity extends AppCompatActivity {
 
         AvsItem current = mAvsItemQueue.get(0);
 
-        if(current instanceof AvsPlayItem){
+        if(current instanceof AvsPlayAudioItem){
             //play a URL
             Log.i(TAG, "Item type AvsPlayItem");
             if(!mAudioPlayer.isPlaying()){
-                mAudioPlayer.playItem((AvsPlayItem) current);
+                mAudioPlayer.playItem((AvsPlayAudioItem) current);
             }
         }else if(current instanceof AvsSpeakItem){
             //play a sound file
@@ -333,7 +334,7 @@ public class VoiceLaunchActivity extends AppCompatActivity {
             Log.i(TAG, "Item type AvsStopItem");
             mAudioPlayer.stop();
             mAvsItemQueue.remove(current);
-        }else if(current instanceof AvsClearQueueItem){
+        }else if(current instanceof AvsReplaceEnqueuedItem){
             //clear all items
             Log.i(TAG, "Item type AvsClearQueueItem");
             //mAvsItemQueue.clear();
