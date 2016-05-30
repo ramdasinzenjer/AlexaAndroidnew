@@ -1,4 +1,4 @@
-package com.willblaschko.android.alexavoicelibrary;
+package com.willblaschko.android.alexavoicelibrary.actions;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.willblaschko.android.alexavoicelibrary.actions.SendTextActionFragment;
+import com.willblaschko.android.alexavoicelibrary.R;
 import com.willblaschko.android.alexavoicelibrary.actions.adapter.ActionFragmentAdapter;
 
 import java.util.ArrayList;
@@ -19,22 +19,32 @@ import java.util.List;
  * Created by will on 5/30/2016.
  */
 
-public class ActionsFragment extends Fragment {
+public class ActionsFragment extends BaseListenerFragment {
 
     private RecyclerView recycler;
     private ActionFragmentAdapter adapter;
 
+
     @Override
-    public void onResume() {
-        super.onResume();
-        getActivity().setTitle(R.string.app_name);
+    public void startListening() {
+
+    }
+
+    @Override
+    protected String getTitle() {
+        return getString(R.string.app_name);
+    }
+
+    @Override
+    protected int getRawCode() {
+        return R.raw.code_base;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_actions, container, false);
-    }
+    }comm
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -48,7 +58,15 @@ public class ActionsFragment extends Fragment {
 
     private List<ActionFragmentAdapter.ActionFragmentItem> getItems(){
         List<ActionFragmentAdapter.ActionFragmentItem> items = new ArrayList<>();
-        items.add(new ActionFragmentAdapter.ActionFragmentItem("Send Text",
+        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
+                        android.R.drawable.ic_menu_compass,
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                loadFragment(new SendPrerecordedActionFragment());
+                            }
+                        }));
+        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
                 android.R.drawable.ic_menu_edit,
                 new View.OnClickListener() {
                     @Override
@@ -60,11 +78,6 @@ public class ActionsFragment extends Fragment {
         return items;
     }
 
-    private void loadFragment(Fragment fragment){
-        if(getActivity() != null && getActivity() instanceof ActionFragmentInterface){
-            ((ActionFragmentInterface) getActivity()).loadFragment(fragment, true);
-        }
-    }
 
     public interface ActionFragmentInterface{
         void loadFragment(Fragment fragment, boolean addToBackstack);

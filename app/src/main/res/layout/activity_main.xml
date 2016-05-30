@@ -6,7 +6,6 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/status_bar"
         android:id="@+id/frame">
 
     </FrameLayout>

@@ -39,20 +39,37 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
     private final static String TAG = "BaseActivity";
 
-    protected final static int STATE_LISTENING = 1;
-    protected final static int STATE_PROCESSING = 2;
-    protected final static int STATE_SPEAKING = 3;
-    protected final static int STATE_PROMPTING = 4;
-    protected final static int STATE_FINISHED = 0;
+    private final static int STATE_LISTENING = 1;
+    private final static int STATE_PROCESSING = 2;
+    private final static int STATE_SPEAKING = 3;
+    private final static int STATE_PROMPTING = 4;
+    private final static int STATE_FINISHED = 0;
 
-    protected AlexaManager alexaManager;
-    protected AlexaAudioPlayer audioPlayer;
+    private AlexaManager alexaManager;
+    private AlexaAudioPlayer audioPlayer;
     private List<AvsItem> avsQueue = new ArrayList<>();
+
+    private long startTime = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        initAlexaAndroid();
+    }
+
+
+
+    @Override
+    public AsyncCallback<AvsResponse, Exception> getRequestCallback() {
+        return requestCallback;
+    }
+
+
+
+
+
+    private void initAlexaAndroid(){
         //get our AlexaManager instance for convenience
         alexaManager = AlexaManager.getInstance(this, PRODUCT_ID);
 
@@ -62,16 +79,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         //Remove the current item and check for more items once we've finished playing
         audioPlayer.addCallback(alexaAudioPlayerCallback);
     }
-
-
-    protected abstract void startListening();
-
-    @Override
-    public AsyncCallback<AvsResponse, Exception> getRequestCallback() {
-        return requestCallback;
-    }
-
-
 
     //Our callback that deals with removing played items in our media player and then checking to see if more items exist
     private AlexaAudioPlayer.Callback alexaAudioPlayerCallback = new AlexaAudioPlayer.Callback() {
@@ -96,17 +103,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
         }
     };
-    long startTime = 0;
 
     //async callback for commands sent to Alexa Voice
-    protected AsyncCallback<AvsResponse, Exception> requestCallback = new AsyncCallback<AvsResponse, Exception>() {
-
-
+    private AsyncCallback<AvsResponse, Exception> requestCallback = new AsyncCallback<AvsResponse, Exception>() {
         @Override
         public void start() {
+            startTime = System.currentTimeMillis();
             Log.i(TAG, "Voice Start");
             setState(STATE_PROCESSING);
-            startTime = System.currentTimeMillis();
         }
 
         @Override
@@ -167,7 +171,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      * We're handling the AvsReplaceAllItem in handleResponse() because it needs to clear everything currently in the queue, before
      * the new items are added to the list, it should have no function here.
      */
-    protected void checkQueue() {
+    private void checkQueue() {
 
         //if we're out of things, hang up the phone and move on
         if (avsQueue.size() == 0) {
@@ -235,6 +239,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
     }
 
+    protected abstract void startListening();
+
     private void adjustVolume(long adjust){
         setVolume(adjust, true);
     }
@@ -284,7 +290,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         });
     }
 
-    protected void setState(final int state){
+    private void setState(final int state){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
