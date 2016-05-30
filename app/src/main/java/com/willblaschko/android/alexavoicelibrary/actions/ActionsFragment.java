@@ -21,9 +21,6 @@ import java.util.List;
 
 public class ActionsFragment extends BaseListenerFragment {
 
-    private RecyclerView recycler;
-    private ActionFragmentAdapter adapter;
-
 
     @Override
     public void startListening() {
@@ -44,21 +41,21 @@ public class ActionsFragment extends BaseListenerFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_actions, container, false);
-    }comm
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recycler = (RecyclerView) view.findViewById(R.id.recycler);
-        adapter = new ActionFragmentAdapter(getItems());
+        RecyclerView recycler = (RecyclerView) view.findViewById(R.id.recycler);
+        ActionFragmentAdapter adapter = new ActionFragmentAdapter(getItems());
         recycler.setAdapter(adapter);
         recycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
     }
 
     private List<ActionFragmentAdapter.ActionFragmentItem> getItems(){
         List<ActionFragmentAdapter.ActionFragmentItem> items = new ArrayList<>();
-        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
+        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_prerecorded),
                         android.R.drawable.ic_menu_compass,
                         new View.OnClickListener() {
                             @Override
