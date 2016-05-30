@@ -5,4 +5,5 @@
     <string name="status_listening">LISTENING…</string>
     <string name="status_processing">PROCESSING…</string>
     <string name="status_speaking">SPEAKING…</string>
+    <string name="fragment_action_send_text">Send Text</string>
 </resources>
