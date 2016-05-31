@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 
 ext {
     bintrayRepo = 'maven'
-    bintrayName = 'alexa-android'
+    bintrayName = 'AlexaAndroid'
 
     publishedGroupId = 'com.willblaschko.android.alexa'
-    libraryName = 'alexa-android'
-    artifact = 'alexa-android'
+    libraryName = 'AlexaAndroid'
+    artifact = 'AlexaAndroid'
 
     libraryDescription = 'A library to abstract access to the Amazon Alexa service for Android applications.'
 
