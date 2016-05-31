@@ -93,13 +93,21 @@ public class SendAudioActionFragment extends BaseListenerFragment {
     @Override
     public void onStop() {
         super.onStop();
+        //tear down our recorder on stop
         if(recorder != null){
             recorder.stop();
-            if(recorder != null) {
-                recorder.release();
-            }
+            recorder.release();
             recorder = null;
         }
+    }
+
+    @Override
+    public void startListening() {
+        if(recorder == null){
+            recorder = new RawAudioRecorder(AUDIO_RATE);
+        }
+        recorder.start();
+        alexaManager.sendAudioRequest(requestBody, getRequestCallback());
     }
 
     private DataRequestBody requestBody = new DataRequestBody() {
@@ -126,7 +134,7 @@ public class SendAudioActionFragment extends BaseListenerFragment {
                 }
 
                 try {
-                    Thread.sleep(75);
+                    Thread.sleep(25);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -135,15 +143,6 @@ public class SendAudioActionFragment extends BaseListenerFragment {
         }
 
     };
-
-    @Override
-    public void startListening() {
-        if(recorder == null){
-            recorder = new RawAudioRecorder(AUDIO_RATE);
-        }
-        recorder.start();
-        alexaManager.sendAudioRequest(requestBody, getRequestCallback());
-    }
 
     private void stopListening(){
         if(recorder != null) {
@@ -155,12 +154,12 @@ public class SendAudioActionFragment extends BaseListenerFragment {
 
     @Override
     protected String getTitle() {
-        return getString(R.string.fragment_action_send_text);
+        return getString(R.string.fragment_action_send_audio);
     }
 
     @Override
     protected int getRawCode() {
-        return R.raw.code_text;
+        return R.raw.code_audio;
     }
 
 
