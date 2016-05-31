@@ -10,8 +10,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.TaskStackBuilder;
 
-import com.willblaschko.android.alexavoicelibrary.VoiceLaunchActivity;
-
 import java.io.IOException;
 
 /**
