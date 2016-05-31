@@ -4,8 +4,8 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'alexa-android'
 
-    publishedGroupId = 'com.willblaschko.android'
-    libraryName = 'AlexaAndroid'
+    publishedGroupId = 'com.willblaschko.android.alexa'
+    libraryName = 'alexa-android'
     artifact = 'alexa-android'
 
     libraryDescription = 'A library to abstract access to the Amazon Alexa service for Android applications.'
@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/willblaschko/AlexaAndroid'
     gitUrl = 'https://github.com/willblaschko/AlexaAndroid.git'
 
-    libraryVersion = '0.1.0'
+    libraryVersion = '0.1.1'
 
     developerId = 'willblaschko'
     developerName = 'Will Blaschko'
