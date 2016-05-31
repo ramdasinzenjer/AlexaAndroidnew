@@ -55,14 +55,24 @@ public class ActionsFragment extends BaseListenerFragment {
 
     private List<ActionFragmentAdapter.ActionFragmentItem> getItems(){
         List<ActionFragmentAdapter.ActionFragmentItem> items = new ArrayList<>();
+
+        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_audio),
+                R.drawable.ic_stat_microphone,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        loadFragment(new SendAudioActionFragment());
+                    }
+                }));
+
         items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_prerecorded),
-                        android.R.drawable.ic_menu_compass,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                loadFragment(new SendPrerecordedActionFragment());
-                            }
-                        }));
+                android.R.drawable.ic_menu_compass,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        loadFragment(new SendPrerecordedActionFragment());
+                    }
+                }));
         items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
                 android.R.drawable.ic_menu_edit,
                 new View.OnClickListener() {
