@@ -1,14 +1,27 @@
 package com.willblaschko.android.alexavoicelibrary.actions;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.KeyEvent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
+import com.willblaschko.android.alexa.requestbody.DataRequestBody;
+import com.willblaschko.android.alexavoicelibrary.BuildConfig;
 import com.willblaschko.android.alexavoicelibrary.R;
+import com.willblaschko.android.recorderview.RecorderView;
+
+import java.io.IOException;
+
+import ee.ioc.phon.android.speechutils.RawAudioRecorder;
+import okio.BufferedSink;
+
 
 /**
  * Created by will on 5/30/2016.
@@ -16,52 +29,128 @@ import com.willblaschko.android.alexavoicelibrary.R;
 
 public class SendAudioActionFragment extends BaseListenerFragment {
 
-    EditText search;
-    View button;
+    private static final String TAG = "SendAudioActionFragment";
+
+    private final static int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
+    private static final int AUDIO_RATE = 16000;
+    private RawAudioRecorder recorder;
+    private RecorderView recorderView;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_action_type, container, false);
+        return inflater.inflate(R.layout.fragment_action_audio, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        search = (EditText) view.findViewById(R.id.search);
-        button = view.findViewById(R.id.button);
-
-        search.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
-                    search();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        button.setOnClickListener(new View.OnClickListener() {
+        recorderView = (RecorderView) view.findViewById(R.id.recorder);
+        recorderView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                search();
+                if(recorder == null) {
+                    startListening();
+                }else{
+                    stopListening();
+                }
             }
         });
-    }
-
-    private void search(){
-        String text = search.getText().toString();
-        alexaManager.sendTextRequest(text, getRequestCallback());
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.RECORD_AUDIO)) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
+                // If request is cancelled, the result arrays are empty.
+                if (!(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+                }
+            }
+
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(recorder != null){
+            recorder.stop();
+            if(recorder != null) {
+                recorder.release();
+            }
+            recorder = null;
+        }
+    }
+
+    private DataRequestBody requestBody = new DataRequestBody() {
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException {
+            while (recorder != null && !recorder.isPausing()) {
+                if(recorder != null) {
+                    final float rmsdb = recorder.getRmsdb();
+                    if(recorderView != null) {
+                        recorderView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                recorderView.setRmsdbLevel(rmsdb);
+                            }
+                        });
+                    }
+                    if(sink != null && recorder != null) {
+                        sink.write(recorder.consumeRecording());
+                    }
+                    if(BuildConfig.DEBUG){
+                        Log.i(TAG, "Received audio");
+                        Log.i(TAG, "RMSDB: " + rmsdb);
+                    }
+                }
+
+                try {
+                    Thread.sleep(75);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            stopListening();
+        }
+
+    };
+
+    @Override
     public void startListening() {
-        search.setText("");
-        search.requestFocus();
+        if(recorder == null){
+            recorder = new RawAudioRecorder(AUDIO_RATE);
+        }
+        recorder.start();
+        alexaManager.sendAudioRequest(requestBody, getRequestCallback());
+    }
+
+    private void stopListening(){
+        if(recorder != null) {
+            recorder.stop();
+            recorder.release();
+            recorder = null;
+        }
     }
 
     @Override
@@ -73,4 +162,6 @@ public class SendAudioActionFragment extends BaseListenerFragment {
     protected int getRawCode() {
         return R.raw.code_text;
     }
+
+
 }
