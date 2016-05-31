@@ -58,6 +58,23 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         initAlexaAndroid();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(audioPlayer != null){
+            audioPlayer.stop();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(audioPlayer != null){
+            //remove callback to avoid memory leaks
+            audioPlayer.removeCallback(alexaAudioPlayerCallback);
+            audioPlayer.release();
+        }
+    }
 
 
     @Override
