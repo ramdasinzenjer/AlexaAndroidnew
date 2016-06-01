@@ -9,7 +9,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * Created by will on 3/6/2016.
+ * @author will on 3/6/2016.
  */
 public class LoginWebViewActivity extends Activity {
 

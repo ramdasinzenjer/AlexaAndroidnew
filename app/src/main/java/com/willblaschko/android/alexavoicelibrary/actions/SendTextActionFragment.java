@@ -11,7 +11,7 @@ import android.widget.EditText;
 import com.willblaschko.android.alexavoicelibrary.R;
 
 /**
- * Created by will on 5/30/2016.
+ * @author will on 5/30/2016.
  */
 
 public class SendTextActionFragment extends BaseListenerFragment {

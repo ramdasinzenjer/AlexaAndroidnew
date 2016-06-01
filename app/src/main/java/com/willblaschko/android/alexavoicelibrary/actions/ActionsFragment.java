@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by will on 5/30/2016.
+ * @author will on 5/30/2016.
  */
 
 public class ActionsFragment extends BaseListenerFragment {

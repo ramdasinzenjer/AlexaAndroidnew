@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Created by will on 5/30/2016.
+ * @author will on 5/30/2016.
  */
 
 public class DisplayCodeFragment extends Fragment {

@@ -16,7 +16,7 @@ import com.willblaschko.android.alexavoicelibrary.R;
 import static com.willblaschko.android.alexavoicelibrary.global.Constants.PRODUCT_ID;
 
 /**
- * Created by will on 5/30/2016.
+ * @author will on 5/30/2016.
  */
 
 public abstract class BaseListenerFragment extends Fragment {

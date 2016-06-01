@@ -10,6 +10,10 @@ import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.alerts.AvsSetAlertItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaNextCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPauseCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPlayCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPreviousCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceAllItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceEnqueuedItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsAdjustVolumeItem;
@@ -138,6 +142,14 @@ public class ResponseParser {
                 item = new AvsAdjustVolumeItem(directive.getPayload().getVolume());
             }else if(directive.isTypeExpectSpeech()){
                 item = new AvsExpectSpeechItem(directive.getPayload().getTimeoutInMilliseconds());
+            }else if(directive.isTypeMediaPlay()){
+                item = new AvsMediaPlayCommandItem();
+            }else if(directive.isTypeMediaPause()){
+                item = new AvsMediaPauseCommandItem();
+            }else if(directive.isTypeMediaNext()){
+                item = new AvsMediaNextCommandItem();
+            }else if(directive.isTypeMediaPrevious()){
+                item = new AvsMediaPreviousCommandItem();
             }
 
             if(item != null){

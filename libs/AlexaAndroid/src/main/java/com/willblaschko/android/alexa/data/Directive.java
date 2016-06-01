@@ -27,6 +27,10 @@ public class Directive {
     private static final String TYPE_ADJUST_VOLUME = "AdjustVolume";
     private static final String TYPE_SET_MUTE = "SetMute";
     private static final String TYPE_EXPECT_SPEECH = "ExpectSpeech";
+    private static final String TYPE_MEDIA_PLAY = "PlayCommandIssued";
+    private static final String TYPE_MEDIA_PAUSE = "PauseCommandIssued";
+    private static final String TYPE_MEDIA_NEXT = "NextCommandIssued";
+    private static final String TYPE_MEDIA_PREVIOUS = "PreviousCommandIssue";
 
     private static final String PLAY_BEHAVIOR_REPLACE_ALL = "REPLACE_ALL";
     private static final String PLAY_BEHAVIOR_ENQUEUE = "ENQUEUE";
@@ -60,6 +64,22 @@ public class Directive {
 
     public boolean isTypeExpectSpeech(){
         return TextUtils.equals(header.getName(), TYPE_EXPECT_SPEECH);
+    }
+
+    public boolean isTypeMediaPlay(){
+        return TextUtils.equals(header.getName(), TYPE_MEDIA_PLAY);
+    }
+
+    public boolean isTypeMediaPause(){
+        return TextUtils.equals(header.getName(), TYPE_MEDIA_PAUSE);
+    }
+
+    public boolean isTypeMediaNext(){
+        return TextUtils.equals(header.getName(), TYPE_MEDIA_NEXT);
+    }
+
+    public boolean isTypeMediaPrevious(){
+        return TextUtils.equals(header.getName(), TYPE_MEDIA_PREVIOUS);
     }
 
     //PLAY BEHAVIORS
