@@ -61,7 +61,7 @@ private void initAlexaAndroid(){
 	//instantiate our audio player
 	audioPlayer = AlexaAudioPlayer.getInstance(this);
 
-	//Remove the current item and check for more items once we've finished playing
+	//Callback to be able to remove the current item and check queue once we've finished playing an item
 	audioPlayer.addCallback(alexaAudioPlayerCallback);
 }
 
