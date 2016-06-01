@@ -1,5 +1,7 @@
 package com.willblaschko.android.alexa.interfaces;
 
+import android.util.Log;
+
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 
@@ -95,6 +97,9 @@ public abstract class SendEvent {
                 boundary = matcher.group(1);
             }
             val = ResponseParser.parseResponse(response.body().byteStream(), boundary);
+        }else{
+            String body = response.body().string();
+            Log.i(TAG, body);
         }
         response.body().close();
 
