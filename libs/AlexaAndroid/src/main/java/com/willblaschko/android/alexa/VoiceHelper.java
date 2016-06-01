@@ -110,7 +110,9 @@ public class VoiceHelper{
 
         @Override
         public void onError(String utteranceId, int errorCode) {
-            super.onError(utteranceId, errorCode);
+            if(mCallbacks == null){
+                return;
+            }
             SpeechFromTextCallback callback = mCallbacks.get(utteranceId);
             if(callback != null){
                 //if we have a callback, bubble up the error
