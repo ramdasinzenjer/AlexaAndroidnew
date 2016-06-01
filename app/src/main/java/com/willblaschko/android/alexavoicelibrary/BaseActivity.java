@@ -1,5 +1,7 @@
 package com.willblaschko.android.alexavoicelibrary;
 
+import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +9,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.willblaschko.android.alexa.AlexaManager;
@@ -16,6 +19,10 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaNextCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPauseCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPlayCommandItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPreviousCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceAllItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceEnqueuedItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsStopItem;
@@ -244,14 +251,29 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             avsQueue.clear();
             startListening();
         } else if (current instanceof AvsSetVolumeItem) {
+            //set our volume
             setVolume(((AvsSetVolumeItem) current).getVolume());
             avsQueue.remove(current);
         } else if(current instanceof AvsAdjustVolumeItem){
+            //adjust the volume
             adjustVolume(((AvsAdjustVolumeItem) current).getAdjustment());
             avsQueue.remove(current);
         } else if(current instanceof AvsSetMuteItem){
+            //mute/unmute the device
             setMute(((AvsSetMuteItem) current).isMute());
             avsQueue.remove(current);
+        }else if(current instanceof AvsMediaPlayCommandItem){
+            //fake a hardware "play" press
+            sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PLAY);
+        }else if(current instanceof AvsMediaPauseCommandItem){
+            //fake a hardware "pause" press
+            sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PAUSE);
+        }else if(current instanceof AvsMediaNextCommandItem){
+            //fake a hardware "next" press
+            sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_NEXT);
+        }else if(current instanceof AvsMediaPreviousCommandItem){
+            //fake a hardware "previous" press
+            sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
         }
 
     }
@@ -305,6 +327,23 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 Toast.makeText(BaseActivity.this, "Volume " + (isMute ? "muted" : "unmuted"), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * Force the device to think that a hardware button has been pressed, this is used for Play/Pause/Previous/Next Media commands
+     * @param context
+     * @param keyCode keycode for the hardware button we're emulating
+     */
+    private static void sendMediaButton(Context context, int keyCode) {
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+        context.sendOrderedBroadcast(intent, null);
+
+        keyEvent = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+        intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+        context.sendOrderedBroadcast(intent, null);
     }
 
     private void setState(final int state){

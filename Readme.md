@@ -189,6 +189,18 @@ private void checkQueue() {
 	} else if(current instanceof AvsSetMuteItem){
 		setMute(((AvsSetMuteItem) current).isMute());
 		avsQueue.remove(current);
+	}else if(current instanceof AvsMediaPlayCommandItem){
+		//fake a hardware "play" press
+		sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PLAY);
+	}else if(current instanceof AvsMediaPauseCommandItem){
+		//fake a hardware "pause" press
+		sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PAUSE);
+	}else if(current instanceof AvsMediaNextCommandItem){
+		//fake a hardware "next" press
+		sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_NEXT);
+	}else if(current instanceof AvsMediaPreviousCommandItem){
+		//fake a hardware "previous" press
+		sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
 	}
 
 }
@@ -227,6 +239,18 @@ private void setMute(final boolean isMute){
 	am.setStreamMute(AudioManager.STREAM_MUSIC, isMute);
 	//confirm device mute
 	alexaManager.sendMutedEvent(isMute, requestCallback);
+}
+
+ private static void sendMediaButton(Context context, int keyCode) {
+	KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+	Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+	intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+	context.sendOrderedBroadcast(intent, null);
+
+	keyEvent = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+	intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+	intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+	context.sendOrderedBroadcast(intent, null);
 }
 ```
 
