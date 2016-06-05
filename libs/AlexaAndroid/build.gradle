@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/willblaschko/AlexaAndroid'
     gitUrl = 'https://github.com/willblaschko/AlexaAndroid.git'
 
-    libraryVersion = '2.0.2-alpha'
+    libraryVersion = '2.0.3-alpha'
 
     developerId = 'willblaschko'
     developerName = 'Will Blaschko'

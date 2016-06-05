@@ -11,7 +11,6 @@ import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
 import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -165,7 +164,7 @@ public class AlexaAudioPlayer {
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(path);
-                fos.write(read(playItem.getAudio()));
+                fos.write(playItem.getAudio());
                 fos.close();
                 //reset our player
                 getMediaPlayer().reset();
@@ -184,18 +183,6 @@ public class AlexaAudioPlayer {
         }catch (IllegalStateException e){
             bubbleUpError(e);
         }
-    }
-
-    /**
-     * Turn the AVS input stream response into a byte array to write to our file
-     * @param bais the byte input stream coming back from AVS
-     * @return a byte array equal to the input stream
-     * @throws IOException if we can't read from the input stream
-     */
-    private byte[] read(ByteArrayInputStream bais) throws IOException {
-        byte[] array = new byte[bais.available()];
-        bais.read(array);
-        return array;
     }
 
     /**
