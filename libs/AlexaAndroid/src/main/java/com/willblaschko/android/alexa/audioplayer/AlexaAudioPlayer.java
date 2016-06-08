@@ -155,6 +155,10 @@ public class AlexaAudioPlayer {
                 e.printStackTrace();
                 //bubble up our error
                 bubbleUpError(e);
+            } catch (IllegalStateException e){
+                e.printStackTrace();
+                //bubble up our error
+                bubbleUpError(e);
             }
         }else if(mItem instanceof AvsSpeakItem){
             //cast our item for easy access
