@@ -534,7 +534,7 @@ public class AlexaManager {
 
                                     try {
                                         getSpeechSendText().sendText(mContext, url, token, text, new AsyncEventHandler(AlexaManager.this, callback));
-                                    } catch (IOException e) {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                         //bubble up the error
                                         if(callback != null) {
