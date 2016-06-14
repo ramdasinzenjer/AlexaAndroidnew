@@ -200,7 +200,7 @@ public class AlexaManager {
                         @Override
                         public void onSuccess() {
                             //call our function again
-                            sendExpectSpeechTimeoutEvent(callback);
+                            sendOpenDownchannelDirective(callback);
                         }
                     });
                 }
@@ -253,7 +253,7 @@ public class AlexaManager {
                         @Override
                         public void onSuccess() {
                             //call our function again
-                            sendExpectSpeechTimeoutEvent(callback);
+                            sendSynchronizeStateEvent(callback);
                         }
                     });
                 }
