@@ -14,6 +14,12 @@ Library updated with functionality for the Alexa [v20160207 API version](https:/
 
 Curious about what the library can do? A quick example of the three main functions (live recorded audio events, text-to-speech intents, prerecorded audio intents), plus sample code can be found in the [sample app](https://play.google.com/store/apps/details?id=com.willblaschko.android.alexavoicelibrary)
 
+####Compiling and running the sample application
+* Follow the process for creating a connected device detailed at the Amazon link at the top of the Readme.
+* Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder
+* Change [PRODUCT_ID](https://github.com/willblaschko/AlexaAndroid/blob/master/app/src/main/java/com/willblaschko/android/alexavoicelibrary/global/Constants.java#L8) to the value for my Alexa application that you configured for "Application Type Id" above.
+* Build and run the sample app using Gradle from the command line or Android Studio!
+
 ###Production Application
 
 Or see what the library can do when converted into a full package, complete with optional always-on listener: [Alexa Listens](https://play.google.com/store/apps/details?id=com.willblaschko.android.alexalistens)
