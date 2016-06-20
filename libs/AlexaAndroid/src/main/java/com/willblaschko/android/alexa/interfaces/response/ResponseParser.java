@@ -75,6 +75,7 @@ public class ResponseParser {
             StringWriter writer = new StringWriter();
             IOUtils.copy(stream, writer, Charset.defaultCharset());
             String body = writer.toString();
+            Log.e(TAG, body);
             throw new AvsException("Response from Alexa server malformed.");
         }
 
