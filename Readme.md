@@ -47,7 +47,7 @@ allprojects {
 ```
 * Add the library to your imports (application-level build.gradle):
 ```java
-compile 'com.willblaschko.android.alexa:AlexaAndroid:2.0.5-alpha'
+compile 'com.willblaschko.android.alexa:AlexaAndroid:2.0.6-alpha'
 ```
 * Follow the process for creating a connected device detailed at the Amazon link at the top of the Readme.
 * Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder.
