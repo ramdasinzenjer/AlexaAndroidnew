@@ -68,7 +68,7 @@ public class ResponseParser {
 
         Pattern pattern = Pattern.compile("<(.*?)>");
 
-        //have to do this otherwise mpStream throws and exception
+        //have to do this otherwise mpStream throws an exception
         if(mpStream.skipPreamble()){
             Log.i(TAG, "Found initial boundary: true");
         }else {
@@ -76,7 +76,7 @@ public class ResponseParser {
             IOUtils.copy(stream, writer, Charset.defaultCharset());
             String body = writer.toString();
             Log.e(TAG, body);
-            throw new AvsException("Response from Alexa server malformed.");
+            throw new AvsException("Response from Alexa server malformed. ");
         }
 
         //we have to use the count hack here because otherwise readBoundary() throws an exception
