@@ -9,6 +9,7 @@ import android.util.Log;
 import com.amazon.identity.auth.device.AuthError;
 import com.amazon.identity.auth.device.authorization.api.AmazonAuthorizationManager;
 import com.google.gson.Gson;
+import com.willblaschko.android.alexa.utility.Util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

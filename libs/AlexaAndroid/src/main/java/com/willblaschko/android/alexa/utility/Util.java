@@ -1,4 +1,4 @@
-package com.willblaschko.android.alexa;
+package com.willblaschko.android.alexa.utility;
 
 import android.content.Context;
 import android.content.SharedPreferences;

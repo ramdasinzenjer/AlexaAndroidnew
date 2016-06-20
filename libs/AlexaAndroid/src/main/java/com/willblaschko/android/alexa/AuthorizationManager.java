@@ -13,6 +13,7 @@ import com.amazon.identity.auth.device.authorization.api.AuthorizationListener;
 import com.amazon.identity.auth.device.authorization.api.AuthzConstants;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
+import com.willblaschko.android.alexa.utility.Util;
 
 import org.jetbrains.annotations.NotNull;
 
