@@ -317,6 +317,7 @@ public class AlexaAudioPlayer {
                 callback.playerPrepared(mItem);
             }
             mMediaPlayer.start();
+            mHandler.sendEmptyMessage(SHOW_PROGRESS);
         }
     };
 

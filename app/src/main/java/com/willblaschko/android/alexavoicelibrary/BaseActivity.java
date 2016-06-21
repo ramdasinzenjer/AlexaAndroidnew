@@ -106,14 +106,21 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
     //Our callback that deals with removing played items in our media player and then checking to see if more items exist
     private AlexaAudioPlayer.Callback alexaAudioPlayerCallback = new AlexaAudioPlayer.Callback() {
+
+        private boolean almostDoneFired = false;
+
         @Override
         public void playerPrepared(AvsItem pendingItem) {
-
+            almostDoneFired = false;
         }
 
         @Override
         public void playerProgress(float percent) {
             Log.i(TAG, "Player percent: "+percent);
+            if(percent > .5f){
+                almostDoneFired = true;
+                sendPlaybackNearlyFinishedEvent();
+            }
         }
 
         @Override
@@ -132,6 +139,14 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
         }
     };
+
+    /**
+     * Send an event back to Alexa that we're nearly done with our current event, this should supply us with the next item
+     * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
+     */
+    private void sendPlaybackNearlyFinishedEvent(){
+        alexaManager.sendPlaybackNearlyFinishedEvent(requestCallback);
+    }
 
     //async callback for commands sent to Alexa Voice
     private AsyncCallback<AvsResponse, Exception> requestCallback = new AsyncCallback<AvsResponse, Exception>() {

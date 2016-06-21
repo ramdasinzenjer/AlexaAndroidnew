@@ -197,6 +197,14 @@ public class Event {
         return builder.toJson();
     }
 
+    public static String getPlaybackNearlyFinishedEvent(){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("AudioPlayer")
+                .setHeaderName("PlaybackNearlyFinished")
+                .setHeaderMessageId("messageId-123");
+        return builder.toJson();
+    }
+
     public static String getSynchronizeStateEvent(){
         Builder builder = new Builder();
         builder.setHeaderNamespace("System")

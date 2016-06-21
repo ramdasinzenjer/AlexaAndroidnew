@@ -262,6 +262,8 @@ public class AlexaManager {
         });
     }
 
+
+
     /**
      * Helper function to check if we're currently recording
      * @return
@@ -795,6 +797,60 @@ public class AlexaManager {
                                 @Override
                                 protected AvsResponse doInBackground(Void... params) {
                                     new GenericSendEvent(url, token, Event.getExpectSpeechTimedOutEvent(), new AsyncEventHandler(AlexaManager.this, callback));
+                                    return null;
+                                }
+                                @Override
+                                protected void onPostExecute(AvsResponse avsResponse) {
+                                    super.onPostExecute(avsResponse);
+                                }
+                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        }
+
+                        @Override
+                        public void onFailure(Throwable e) {
+
+                        }
+                    });
+                } else {
+                    //if the user is not logged in, log them in and then call the function again
+                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
+                        @Override
+                        public void onSuccess() {
+                            //call our function again
+                            sendExpectSpeechTimeoutEvent(callback);
+                        }
+                    });
+                }
+            }
+
+        });
+    }
+
+    /**
+     * Send confirmation that the device has timed out without receiving a speech request when expected
+     *
+     * @param callback
+     */
+    public void sendPlaybackNearlyFinishedEvent(final AsyncCallback<AvsResponse, Exception> callback){
+        //check if the user is already logged in
+        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
+
+            @Override
+            public void success(Boolean result) {
+                if (result) {
+                    //if the user is logged in
+
+                    //set our URL
+                    final String url = getEventsUrl();
+                    //get our access token
+                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
+                        @Override
+                        public void onSuccess(final String token) {
+                            //do this off the main thread
+                            new AsyncTask<Void, Void, AvsResponse>() {
+                                @Override
+                                protected AvsResponse doInBackground(Void... params) {
+                                    new GenericSendEvent(url, token, Event.getPlaybackNearlyFinishedEvent(), new AsyncEventHandler(AlexaManager.this, callback));
                                     return null;
                                 }
                                 @Override
