@@ -3,6 +3,9 @@ package com.willblaschko.android.alexa.audioplayer;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -24,6 +27,8 @@ import java.util.List;
 public class AlexaAudioPlayer {
 
     public static final String TAG = "AlexaAudioPlayer";
+
+    private static final int SHOW_PROGRESS = 6;
 
     private static AlexaAudioPlayer mInstance;
 
@@ -190,6 +195,28 @@ public class AlexaAudioPlayer {
     }
 
     /**
+     * A handler to report back playback progress to the controlling application
+     */
+    protected Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case SHOW_PROGRESS:
+                    if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                        int pos = mMediaPlayer.getCurrentPosition();
+                        final float percent = (float) pos / (float) mMediaPlayer.getDuration();
+                        msg = obtainMessage(SHOW_PROGRESS);
+                        sendMessageDelayed(msg, 50);
+                        postProgress(percent);
+
+                    }
+                    break;
+            }
+        }
+    };
+
+    /**
      * Check whether our MediaPlayer is currently playing
      * @return true playing, false not
      */
@@ -233,10 +260,26 @@ public class AlexaAudioPlayer {
     }
 
     /**
+     * If our callback is not null, post our player progress back to the controlling
+     * application so we can do "almost done" type of calls
+     */
+    private void postProgress(final float percent){
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                for(Callback callback: mCallbacks) {
+                    callback.playerProgress(percent);
+                }
+            }
+        });
+    }
+
+    /**
      * A callback to keep track of the state of the MediaPlayer and various AvsItem states
      */
     public interface Callback{
         void playerPrepared(AvsItem pendingItem);
+        void playerProgress(float percent);
         void itemComplete(AvsItem completedItem);
         boolean playerError(int what, int extra);
         void dataError(Exception e);

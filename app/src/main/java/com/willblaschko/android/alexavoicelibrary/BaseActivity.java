@@ -112,6 +112,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         }
 
         @Override
+        public void playerProgress(float percent) {
+            Log.i(TAG, "Player percent: "+percent);
+        }
+
+        @Override
         public void itemComplete(AvsItem completedItem) {
             avsQueue.remove(completedItem);
             checkQueue();
