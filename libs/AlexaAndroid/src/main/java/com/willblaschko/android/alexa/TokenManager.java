@@ -9,6 +9,7 @@ import android.util.Log;
 import com.amazon.identity.auth.device.AuthError;
 import com.amazon.identity.auth.device.authorization.api.AmazonAuthorizationManager;
 import com.google.gson.Gson;
+import com.willblaschko.android.alexa.connection.ClientUtil;
 import com.willblaschko.android.alexa.utility.Util;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,8 +72,8 @@ public class TokenManager {
         }
         builder.add(ARG_CODE_VERIFIER, codeVerifier);
 
+        OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
 
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)
                 .post(builder.build())
@@ -172,7 +173,8 @@ public class TokenManager {
             callback.onFailure(authError);
         }
 
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
+
         Request request = new Request.Builder()
                 .url(url)
                 .post(builder.build())

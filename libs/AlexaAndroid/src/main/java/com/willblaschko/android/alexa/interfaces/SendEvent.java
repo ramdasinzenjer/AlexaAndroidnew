@@ -3,6 +3,7 @@ package com.willblaschko.android.alexa.interfaces;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
+import com.willblaschko.android.alexa.connection.ClientUtil;
 import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,7 @@ public abstract class SendEvent {
     protected AsyncCallback<Void, Exception> mCallback;
 
     //OkHttpClient for transfer of data
-    OkHttpClient mClient = new OkHttpClient();
+    OkHttpClient mClient = ClientUtil.getTLS12OkHttpClient();
     Request.Builder mRequestBuilder = new Request.Builder();
     MultipartBody.Builder mBodyBuilder;
 

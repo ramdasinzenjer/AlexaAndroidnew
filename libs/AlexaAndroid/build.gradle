@@ -29,7 +29,7 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
     compile 'com.google.code.gson:gson:2.4'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.squareup.okhttp3:okhttp:3.3.1'
     testCompile 'junit:junit:4.12'
 }
 
@@ -37,7 +37,7 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 22
     }
 
