@@ -1,7 +1,5 @@
 package com.willblaschko.android.alexa.connection;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -15,6 +13,17 @@ import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Created by willb_000 on 6/26/2016.
+ */
+
+
+/**
+ * Enables TLS v1.2 when creating SSLSockets.
+ * @link https://github.com/square/okhttp/issues/2372
+ * <p/>
+ * For some reason, android supports TLS v1.2 from API 16, but enables it by
+ * default only from API 20.
+ * @link https://developer.android.com/reference/javax/net/ssl/SSLSocket.html
+ * @see SSLSocketFactory
  */
 public class TLSSocketFactoryCompat extends SSLSocketFactory {
 
@@ -34,11 +43,6 @@ public class TLSSocketFactoryCompat extends SSLSocketFactory {
     @Override
     public String[] getSupportedCipherSuites() {
         return internalSSLSocketFactory.getSupportedCipherSuites();
-    }
-
-    @Override
-    public Socket createSocket() throws IOException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket());
     }
 
     @Override
@@ -68,8 +72,7 @@ public class TLSSocketFactoryCompat extends SSLSocketFactory {
 
     private Socket enableTLSOnSocket(Socket socket) {
         if(socket != null && (socket instanceof SSLSocket)) {
-            Log.i("TLSSocketFactory", "Enabling TLS 1.2");
-            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.1", "TLSv1.2"});
+            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.2"});
         }
         return socket;
     }

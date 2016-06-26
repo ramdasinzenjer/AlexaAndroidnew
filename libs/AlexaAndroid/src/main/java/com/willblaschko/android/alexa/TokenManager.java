@@ -9,22 +9,13 @@ import android.util.Log;
 import com.amazon.identity.auth.device.AuthError;
 import com.amazon.identity.auth.device.authorization.api.AmazonAuthorizationManager;
 import com.google.gson.Gson;
-import com.willblaschko.android.alexa.connection.TLSSocketFactoryCompat;
+import com.willblaschko.android.alexa.connection.ClientUtil;
 import com.willblaschko.android.alexa.utility.Util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -81,7 +72,7 @@ public class TokenManager {
         }
         builder.add(ARG_CODE_VERIFIER, codeVerifier);
 
-        OkHttpClient client = getClient();
+        OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -182,7 +173,7 @@ public class TokenManager {
             callback.onFailure(authError);
         }
 
-        OkHttpClient client = getClient();
+        OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -226,36 +217,6 @@ public class TokenManager {
                 });
             }
         });
-    }
-
-    private static OkHttpClient getClient(){
-        OkHttpClient client = null;
-        try {
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init((KeyStore) null);
-            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-            if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-                throw new IllegalStateException("Unexpected default trust managers:"
-                        + Arrays.toString(trustManagers));
-            }
-            X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-
-            client = new OkHttpClient.Builder()
-                    //Add Custom SSL Socket Factory which adds TLS 1.1 and 1.2 support for Android 4.1-4.4
-                    .sslSocketFactory(new TLSSocketFactoryCompat(), trustManager)
-                    .build();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } finally {
-            if(client == null){
-                client = new OkHttpClient();
-            }
-        }
-        return client;
     }
 
     /**
