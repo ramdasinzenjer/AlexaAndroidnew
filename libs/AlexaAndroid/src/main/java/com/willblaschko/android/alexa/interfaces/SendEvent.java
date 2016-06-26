@@ -3,14 +3,24 @@ package com.willblaschko.android.alexa.interfaces;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
+import com.willblaschko.android.alexa.connection.TLSSocketFactoryCompat;
 import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -34,7 +44,7 @@ public abstract class SendEvent {
     protected AsyncCallback<Void, Exception> mCallback;
 
     //OkHttpClient for transfer of data
-    OkHttpClient mClient = new OkHttpClient();
+    OkHttpClient mClient;
     Request.Builder mRequestBuilder = new Request.Builder();
     MultipartBody.Builder mBodyBuilder;
 
@@ -45,6 +55,33 @@ public abstract class SendEvent {
      * @param accessToken the access token of the user who has given consent to the app
      */
     protected void prepareConnection(String url, String accessToken) {
+
+        mClient = null;
+        try {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+            if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+                throw new IllegalStateException("Unexpected default trust managers:"
+                        + Arrays.toString(trustManagers));
+            }
+            X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+
+            mClient = new OkHttpClient.Builder()
+                    //Add Custom SSL Socket Factory which adds TLS 1.1 and 1.2 support for Android 4.1-4.4
+                    .sslSocketFactory(new TLSSocketFactoryCompat(), trustManager)
+                    .build();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } finally {
+            if(mClient == null){
+                mClient = new OkHttpClient();
+            }
+        }
 
         //set the request URL
         mRequestBuilder.url(url);

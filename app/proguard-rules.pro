@@ -15,3 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+
+-keepclassmembers class * implements javax.net.ssl.SSLSocketFactory {
+    private javax.net.ssl.SSLSocketFactory delegate;
+}
