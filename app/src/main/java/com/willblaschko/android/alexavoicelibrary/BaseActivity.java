@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,6 +20,7 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
+import com.willblaschko.android.alexa.interfaces.errors.AvsResponseException;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaNextCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPauseCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPlayCommandItem;
@@ -102,6 +104,12 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
         //Remove the current item and check for more items once we've finished playing
         audioPlayer.addCallback(alexaAudioPlayerCallback);
+
+        //open our downchannel
+        alexaManager.sendOpenDownchannelDirective();
+
+        //synchronize our device
+        alexaManager.sendSynchronizeStateEvent(requestCallback);
     }
 
     //Our callback that deals with removing played items in our media player and then checking to see if more items exist
@@ -112,40 +120,67 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void playerPrepared(AvsItem pendingItem) {
             almostDoneFired = false;
+            sendPlaybackStartedEvent(pendingItem);
+
         }
 
         @Override
-        public void playerProgress(float percent) {
+        public void playerProgress(AvsItem item, long offsetInMilliseconds, float percent) {
             Log.i(TAG, "Player percent: "+percent);
-            if(percent > .5f){
+            if(percent > .5f && !almostDoneFired){
                 almostDoneFired = true;
-                sendPlaybackNearlyFinishedEvent();
+                sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds);
             }
         }
 
         @Override
         public void itemComplete(AvsItem completedItem) {
+            almostDoneFired = false;
+            //sendPlaybackFinishedEvent(completedItem);
             avsQueue.remove(completedItem);
             checkQueue();
         }
 
         @Override
-        public boolean playerError(int what, int extra) {
+        public boolean playerError(AvsItem item, int what, int extra) {
+            sendPlaybackNearlyFinishedEvent(item, 500);
+            itemComplete(item);
             return false;
         }
 
         @Override
-        public void dataError(Exception e) {
-
+        public void dataError(AvsItem item, Exception e) {
+            e.printStackTrace();
+            sendPlaybackNearlyFinishedEvent(item, 500);
+            itemComplete(item);
         }
     };
 
     /**
-     * Send an event back to Alexa that we're nearly done with our current event, this should supply us with the next item
+     * Send an event back to Alexa that we're nearly done with our current playback event, this should supply us with the next item
      * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
      */
-    private void sendPlaybackNearlyFinishedEvent(){
-        alexaManager.sendPlaybackNearlyFinishedEvent(requestCallback);
+    private void sendPlaybackNearlyFinishedEvent(AvsItem item, long offsetInMilliseconds){
+        alexaManager.sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds, requestCallback);
+        Log.i(TAG, "Sending PlaybackNearlyFinishedEvent");
+    }
+
+    /**
+     * Send an event back to Alexa that we're starting a speech event
+     * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
+     */
+    private void sendPlaybackStartedEvent(AvsItem item){
+        alexaManager.sendPlaybackStartedEvent(item, null);
+        Log.i(TAG, "Sending SpeechStartedEvent");
+    }
+
+    /**
+     * Send an event back to Alexa that we're done with our current speech event, this should supply us with the next item
+     * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
+     */
+    private void sendPlaybackFinishedEvent(AvsItem item){
+        alexaManager.sendPlaybackFinishedEvent(item, requestCallback);
+        Log.i(TAG, "Sending SpeechFinishedEvent");
     }
 
     //async callback for commands sent to Alexa Voice
@@ -153,26 +188,26 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void start() {
             startTime = System.currentTimeMillis();
-            Log.i(TAG, "Voice Start");
+            Log.i(TAG, "Event Start");
             setState(STATE_PROCESSING);
         }
 
         @Override
         public void success(AvsResponse result) {
-            Log.i(TAG, "Voice Success");
+            Log.i(TAG, "Event Success");
             handleResponse(result);
         }
 
         @Override
         public void failure(Exception error) {
             error.printStackTrace();
-            Log.i(TAG, "Voice Error");
+            Log.i(TAG, "Event Error");
             setState(STATE_FINISHED);
         }
 
         @Override
         public void complete() {
-            Log.i(TAG, "Voice Complete");
+            Log.i(TAG, "Event Complete");
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -189,6 +224,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      * @param response a List<AvsItem> returned from the mAlexaManager.sendTextRequest() call in sendVoiceToAlexa()
      */
     private void handleResponse(AvsResponse response){
+        boolean checkAfter = (avsQueue.size() == 0);
         if(response != null){
             //if we have a clear queue item in the list, we need to clear the current queue before proceeding
             //iterate backwards to avoid changing our array positions and getting all the nasty errors that come
@@ -204,7 +240,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             Log.i(TAG, "Adding "+response.size()+" items to our queue");
             avsQueue.addAll(response);
         }
-        checkQueue();
+        if(checkAfter) {
+            checkQueue();
+        }
     }
 
 
@@ -231,7 +269,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             return;
         }
 
-        AvsItem current = avsQueue.get(0);
+        final AvsItem current = avsQueue.get(0);
 
         Log.i(TAG, "Item type " + current.getClass().getName());
 
@@ -286,20 +324,37 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             //fake a hardware "play" press
             sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PLAY);
             Log.i(TAG, "Media play command issued");
+            avsQueue.remove(current);
         }else if(current instanceof AvsMediaPauseCommandItem){
             //fake a hardware "pause" press
             sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PAUSE);
             Log.i(TAG, "Media pause command issued");
+            avsQueue.remove(current);
         }else if(current instanceof AvsMediaNextCommandItem){
             //fake a hardware "next" press
             sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_NEXT);
             Log.i(TAG, "Media next command issued");
+            avsQueue.remove(current);
         }else if(current instanceof AvsMediaPreviousCommandItem){
             //fake a hardware "previous" press
             sendMediaButton(this, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
             Log.i(TAG, "Media previous command issued");
-        }
+            avsQueue.remove(current);
+        }else if(current instanceof AvsResponseException){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(BaseActivity.this)
+                            .setTitle("Error")
+                            .setMessage(((AvsResponseException) current).getDirective().getPayload().getCode() + ": " + ((AvsResponseException) current).getDirective().getPayload().getDescription())
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                }
+            });
 
+            avsQueue.remove(current);
+            checkQueue();
+        }
     }
 
     protected abstract void startListening();

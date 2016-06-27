@@ -13,14 +13,15 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  *
  * @author will on 5/21/2016.
  */
-public class AvsPlayContentItem implements AvsItem {
+public class AvsPlayContentItem extends AvsItem {
     private Uri mUri;
 
     /**
      * Create a new local play item
      * @param uri the local URI
      */
-    public AvsPlayContentItem(Uri uri){
+    public AvsPlayContentItem(String token, Uri uri){
+        super(token);
         mUri = uri;
     }
     public Uri getUri(){

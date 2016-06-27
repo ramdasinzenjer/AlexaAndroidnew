@@ -16,10 +16,10 @@ package com.willblaschko.android.alexa.interfaces.speechrecognizer;
 @Deprecated
 public class AvsListenItem extends AvsExpectSpeechItem {
     public AvsListenItem(){
-        super(2000);
+        this(null, 2000);
     }
-    public AvsListenItem(long timeoutInMiliseconds) {
-        super(timeoutInMiliseconds);
+    public AvsListenItem(String token, long timeoutInMiliseconds) {
+        super(token, timeoutInMiliseconds);
     }
 
 }

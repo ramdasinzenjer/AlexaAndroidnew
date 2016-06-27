@@ -10,14 +10,15 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
 *
 * @author will on 5/21/2016.
 */
-public class AvsSetMuteItem implements AvsItem{
+public class AvsSetMuteItem extends AvsItem{
     boolean mute;
 
     /**
      * Create a new AdjustVolume {@link com.willblaschko.android.alexa.data.Directive}
      * @param mute whether the device should be mute upon parsing the directive.
      */
-    public AvsSetMuteItem(boolean mute){
+    public AvsSetMuteItem(String token, boolean mute){
+        super(token);
         this.mute = mute;
     }
 

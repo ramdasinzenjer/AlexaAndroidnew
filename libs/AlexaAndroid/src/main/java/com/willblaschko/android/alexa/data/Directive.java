@@ -31,6 +31,7 @@ public class Directive {
     private static final String TYPE_MEDIA_PAUSE = "PauseCommandIssued";
     private static final String TYPE_MEDIA_NEXT = "NextCommandIssued";
     private static final String TYPE_MEDIA_PREVIOUS = "PreviousCommandIssue";
+    private static final String TYPE_EXCEPTION = "Exception";
 
     private static final String PLAY_BEHAVIOR_REPLACE_ALL = "REPLACE_ALL";
     private static final String PLAY_BEHAVIOR_ENQUEUE = "ENQUEUE";
@@ -80,6 +81,10 @@ public class Directive {
 
     public boolean isTypeMediaPrevious(){
         return TextUtils.equals(header.getName(), TYPE_MEDIA_PREVIOUS);
+    }
+
+    public boolean isTypeException(){
+        return TextUtils.equals(header.getName(), TYPE_EXCEPTION);
     }
 
     //PLAY BEHAVIORS
@@ -139,6 +144,8 @@ public class Directive {
         long volume;
         boolean mute;
         long timeoutInMilliseconds;
+        String description;
+        String code;
 
         public String getUrl() {
             return url;
@@ -149,6 +156,12 @@ public class Directive {
         }
 
         public String getToken() {
+            if(token == null){
+                //sometimes we need to return the stream tokens, not the top level tokens
+                if(audioItem != null && audioItem.getStream() != null){
+                    return audioItem.getStream().getToken();
+                }
+            }
             return token;
         }
 
@@ -177,6 +190,14 @@ public class Directive {
         }
 
         public long getTimeoutInMilliseconds(){ return timeoutInMilliseconds; }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getCode() {
+            return code;
+        }
     }
 
     public static class AudioItem{

@@ -10,12 +10,13 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  *
  * @author will on 5/21/2016.
  */
-public class AvsPlayRemoteItem implements AvsItem {
+public class AvsPlayRemoteItem extends AvsItem {
     private String mUrl;
     private String mStreamId;
     private long mStartOffset;
 
-    public AvsPlayRemoteItem(String url, long startOffset) {
+    public AvsPlayRemoteItem(String token, String url, long startOffset) {
+        super(token);
         mUrl = url;
         mStartOffset = (startOffset < 0) ? 0 : startOffset;
     }

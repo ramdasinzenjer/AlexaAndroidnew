@@ -16,7 +16,7 @@ import java.io.IOException;
  * @author will on 5/21/2016.
  */
 public class AvsPlayAudioItem extends AvsSpeakItem {
-    public AvsPlayAudioItem(String cid, ByteArrayInputStream audio) throws IOException {
-        super(cid, audio);
+    public AvsPlayAudioItem(String token, String cid, ByteArrayInputStream audio) throws IOException {
+        super(token, cid, audio);
     }
 }

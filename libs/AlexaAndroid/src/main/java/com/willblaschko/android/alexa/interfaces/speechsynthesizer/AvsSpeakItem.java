@@ -15,16 +15,17 @@ import java.io.IOException;
  *
  * @author will on 5/21/2016.
  */
-public class AvsSpeakItem implements AvsItem {
+public class AvsSpeakItem extends AvsItem {
     private String mCid;
     private byte[] mAudio;
 
-    public AvsSpeakItem(String cid, ByteArrayInputStream audio) throws IOException {
-        this(cid, IOUtils.toByteArray(audio));
+    public AvsSpeakItem(String token, String cid, ByteArrayInputStream audio) throws IOException {
+        this(token, cid, IOUtils.toByteArray(audio));
         audio.close();
     }
 
-    public AvsSpeakItem(String cid, byte[] audio){
+    public AvsSpeakItem(String token, String cid, byte[] audio){
+        super(token);
         mCid = cid;
         mAudio = audio;
     }

@@ -7,11 +7,13 @@ import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
 import com.willblaschko.android.alexa.data.Event;
 import com.willblaschko.android.alexa.interfaces.AvsException;
+import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.GenericSendEvent;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendAudio;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendText;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendVoice;
+import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 import com.willblaschko.android.alexa.interfaces.system.OpenDownchannel;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
 
@@ -149,9 +151,8 @@ public class AlexaManager {
 
     /**
      * Send a get {@link com.willblaschko.android.alexa.data.Directive} request to the Alexa server to open a persistent connection
-     * @param callback state callback
      */
-    public void sendOpenDownchannelDirective(@Nullable final AsyncCallback<AvsResponse, Exception> callback){
+    public void sendOpenDownchannelDirective(){
         //check if the user is already logged in
         mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
 
@@ -172,13 +173,9 @@ public class AlexaManager {
                                 protected AvsResponse doInBackground(Void... params) {
                                     try {
                                         //create a new OpenDownchannel object and send our request
-                                        new OpenDownchannel(url, token, new AsyncEventHandler(AlexaManager.this, callback));
+                                        new OpenDownchannel(url, token, new AsyncEventHandler(AlexaManager.this, null));
                                     } catch (IOException e) {
                                         e.printStackTrace();
-                                        //bubble up the error
-                                        if(callback != null) {
-                                            callback.failure(e);
-                                        }
                                     }
                                     return null;
                                 }
@@ -196,11 +193,11 @@ public class AlexaManager {
                     });
                 } else {
                     //if the user is not logged in, log them in and then call the function again
-                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
+                    logIn(new ImplAuthorizationCallback<AvsResponse>(null) {
                         @Override
                         public void onSuccess() {
                             //call our function again
-                            sendOpenDownchannelDirective(callback);
+                            sendOpenDownchannelDirective();
                         }
                     });
                 }
@@ -211,55 +208,11 @@ public class AlexaManager {
 
     /**
      * Send a synchronize state {@link Event} request to Alexa Servers to retrieve pending {@link com.willblaschko.android.alexa.data.Directive}
+     * See: {@link #sendEvent(String, AsyncCallback)}
      * @param callback state callback
      */
     public void sendSynchronizeStateEvent(@Nullable final AsyncCallback<AvsResponse, Exception> callback){
-        //check if the user is already logged in
-        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
-
-            @Override
-            public void success(Boolean result) {
-                if (result) {
-                    //if the user is logged in
-
-                    //set our URL
-                    final String url = getEventsUrl();
-                    //get our access token
-                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
-                        @Override
-                        public void onSuccess(final String token) {
-                            //do this off the main thread
-                            new AsyncTask<Void, Void, AvsResponse>() {
-                                @Override
-                                protected AvsResponse doInBackground(Void... params) {
-                                    new GenericSendEvent(url, token, Event.getSynchronizeStateEvent(), new AsyncEventHandler(AlexaManager.this, callback));
-                                    return null;
-                                }
-                                @Override
-                                protected void onPostExecute(AvsResponse avsResponse) {
-                                    super.onPostExecute(avsResponse);
-                                }
-                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable e) {
-
-                        }
-                    });
-                } else {
-                    //if the user is not logged in, log them in and then call the function again
-                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
-                        @Override
-                        public void onSuccess() {
-                            //call our function again
-                            sendSynchronizeStateEvent(callback);
-                        }
-                    });
-                }
-            }
-
-        });
+        sendEvent(Event.getSynchronizeStateEvent(), callback);
     }
 
 
@@ -660,178 +613,89 @@ public class AlexaManager {
     }
 
     /** Send a confirmation to the Alexa server that the device volume has been changed in response to a directive
+     * See: {@link #sendEvent(String, AsyncCallback)}
      *
      * @param volume volume as reported by the {@link com.willblaschko.android.alexa.interfaces.speaker.AvsAdjustVolumeItem} Directive
      * @param isMute report whether the device is currently muted
      * @param callback state callback
      */
     public void sendVolumeChangedEvent(final long volume, final boolean isMute, @Nullable final AsyncCallback<AvsResponse, Exception> callback){
-        //check if the user is already logged in
-        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
-            @Override
-            public void success(Boolean result) {
-                if (result) {
-                    //if the user is logged in
-
-                    //set our URL
-                    final String url = getEventsUrl();
-                    //get our access token
-                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
-                        @Override
-                        public void onSuccess(final String token) {
-                            //do this off the main thread
-                            new AsyncTask<Void, Void, AvsResponse>() {
-                                @Override
-                                protected AvsResponse doInBackground(Void... params) {
-                                    new GenericSendEvent(url, token, Event.getVolumeChangedEvent(volume, isMute), new AsyncEventHandler(AlexaManager.this, callback));
-                                    return null;
-                                }
-                                @Override
-                                protected void onPostExecute(AvsResponse avsResponse) {
-                                    super.onPostExecute(avsResponse);
-                                }
-                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable e) {
-
-                        }
-                    });
-                } else {
-                    //if the user is not logged in, log them in and then call the function again
-                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
-                        @Override
-                        public void onSuccess() {
-                            //call our function again
-                            sendVolumeChangedEvent(volume, isMute, callback);
-                        }
-
-
-                    });
-                }
-            }
-
-        });
+        sendEvent(Event.getVolumeChangedEvent(volume, isMute), callback);
     }
 
 
     /** Send a confirmation to the Alexa server that the mute state has been changed in response to a directive
+     * See: {@link #sendEvent(String, AsyncCallback)}
      *
      * @param isMute mute state as reported by the {@link com.willblaschko.android.alexa.interfaces.speaker.AvsSetMuteItem} Directive
      * @param callback
      */
     public void sendMutedEvent(final boolean isMute, @Nullable final AsyncCallback<AvsResponse, Exception> callback){
-        //check if the user is already logged in
-        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
-
-            @Override
-            public void success(Boolean result) {
-                if (result) {
-                    //if the user is logged in
-
-                    //set our URL
-                    final String url = getEventsUrl();
-                    //get our access token
-                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
-                        @Override
-                        public void onSuccess(final String token) {
-                            //do this off the main thread
-                            new AsyncTask<Void, Void, AvsResponse>() {
-                                @Override
-                                protected AvsResponse doInBackground(Void... params) {
-                                    new GenericSendEvent(url, token, Event.getMuteEvent(isMute), new AsyncEventHandler(AlexaManager.this, callback));
-                                    return null;
-                                }
-                                @Override
-                                protected void onPostExecute(AvsResponse avsResponse) {
-                                    super.onPostExecute(avsResponse);
-                                }
-                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable e) {
-
-                        }
-                    });
-                } else {
-                    //if the user is not logged in, log them in and then call the function again
-                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
-                        @Override
-                        public void onSuccess() {
-                            //call our function again
-                            sendMutedEvent(isMute, callback);
-                        }
-
-
-                    });
-                }
-            }
-
-        });
+        sendEvent(Event.getMuteEvent(isMute), callback);
     }
 
     /**
      * Send confirmation that the device has timed out without receiving a speech request when expected
+     * See: {@link #sendEvent(String, AsyncCallback)}
      *
      * @param callback
      */
     public void sendExpectSpeechTimeoutEvent(final AsyncCallback<AvsResponse, Exception> callback){
-        //check if the user is already logged in
-        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
-
-            @Override
-            public void success(Boolean result) {
-                if (result) {
-                    //if the user is logged in
-
-                    //set our URL
-                    final String url = getEventsUrl();
-                    //get our access token
-                    TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
-                        @Override
-                        public void onSuccess(final String token) {
-                            //do this off the main thread
-                            new AsyncTask<Void, Void, AvsResponse>() {
-                                @Override
-                                protected AvsResponse doInBackground(Void... params) {
-                                    new GenericSendEvent(url, token, Event.getExpectSpeechTimedOutEvent(), new AsyncEventHandler(AlexaManager.this, callback));
-                                    return null;
-                                }
-                                @Override
-                                protected void onPostExecute(AvsResponse avsResponse) {
-                                    super.onPostExecute(avsResponse);
-                                }
-                            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable e) {
-
-                        }
-                    });
-                } else {
-                    //if the user is not logged in, log them in and then call the function again
-                    logIn(new ImplAuthorizationCallback<AvsResponse>(callback) {
-                        @Override
-                        public void onSuccess() {
-                            //call our function again
-                            sendExpectSpeechTimeoutEvent(callback);
-                        }
-                    });
-                }
-            }
-
-        });
+        sendEvent(Event.getExpectSpeechTimedOutEvent(), callback);
     }
 
     /**
-     * Send confirmation that the device has timed out without receiving a speech request when expected
+     * Send an event to indicate that playback of media has nearly completed
+     * See: {@link #sendEvent(String, AsyncCallback)}
      *
+     * @param item our playback item
      * @param callback
      */
-    public void sendPlaybackNearlyFinishedEvent(final AsyncCallback<AvsResponse, Exception> callback){
+    public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
+        sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
+    }
+
+
+    /**
+     * Send an event to indicate that playback of a speech item has started
+     * See: {@link #sendEvent(String, AsyncCallback)}
+     *
+     * @param item our speak item
+     * @param callback
+     */
+    public void sendPlaybackStartedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback){
+        String event;
+        if(item instanceof AvsSpeakItem){
+            event = Event.getSpeechStartedEvent(item.getToken());
+        }else{
+            event = Event.getPlaybackStartedEvent(item.getToken());
+        }
+        sendEvent(event, callback);
+    }
+
+    /**
+     * Send an event to indicate that playback of a speech item has finished
+     * See: {@link #sendEvent(String, AsyncCallback)}
+     *
+     * @param item our speak item
+     * @param callback
+     */
+    public void sendPlaybackFinishedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback){
+        String event;
+        if(item instanceof AvsSpeakItem){
+            event = Event.getSpeechFinishedEvent(item.getToken());
+        }else{
+            event = Event.getPlaybackFinishedEvent(item.getToken());
+        }
+        sendEvent(event, callback);
+    }
+
+    /**
+     * Send a generic event to the AVS server, this is generated using {@link com.willblaschko.android.alexa.data.Event.Builder}
+     * @param event the string JSON event
+     * @param callback
+     */
+    public void sendEvent(final String event, final AsyncCallback<AvsResponse, Exception> callback){
         //check if the user is already logged in
         mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
 
@@ -850,7 +714,7 @@ public class AlexaManager {
                             new AsyncTask<Void, Void, AvsResponse>() {
                                 @Override
                                 protected AvsResponse doInBackground(Void... params) {
-                                    new GenericSendEvent(url, token, Event.getPlaybackNearlyFinishedEvent(), new AsyncEventHandler(AlexaManager.this, callback));
+                                    new GenericSendEvent(url, token, event, new AsyncEventHandler(AlexaManager.this, callback));
                                     return null;
                                 }
                                 @Override
@@ -871,7 +735,7 @@ public class AlexaManager {
                         @Override
                         public void onSuccess() {
                             //call our function again
-                            sendExpectSpeechTimeoutEvent(callback);
+                            sendEvent(event, callback);
                         }
                     });
                 }

@@ -99,13 +99,13 @@ public abstract class SendEvent {
             }
             val = ResponseParser.parseResponse(response.body().byteStream(), boundary);
         }else{
-            String body = response.body().string();
-            Log.i(TAG, body);
+            Log.i(TAG, "Body: "+response.body().string());
         }
         response.body().close();
 
         return val;
     }
+
 
     /**
      * When override, our extending classes can add their own data to the POST

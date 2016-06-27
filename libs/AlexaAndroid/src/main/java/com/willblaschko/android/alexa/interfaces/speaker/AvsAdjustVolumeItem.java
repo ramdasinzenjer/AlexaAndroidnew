@@ -10,14 +10,15 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  *
  * @author will on 5/21/2016.
  */
-public class AvsAdjustVolumeItem implements AvsItem{
+public class AvsAdjustVolumeItem extends AvsItem{
     private long adjustment;
 
     /**
      * Create a new AdjustVolume {@link com.willblaschko.android.alexa.data.Directive}
      * @param adjustment the direction and amount of adjustment (1, -1).
      */
-    public AvsAdjustVolumeItem(long adjustment){
+    public AvsAdjustVolumeItem(String token, long adjustment){
+        super(token);
         this.adjustment = adjustment;
     }
 

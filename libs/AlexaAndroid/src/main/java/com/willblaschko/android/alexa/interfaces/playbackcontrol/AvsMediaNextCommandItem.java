@@ -10,5 +10,8 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  * @author will on 5/31/2016.
  */
 
-public class AvsMediaNextCommandItem implements AvsItem {
+public class AvsMediaNextCommandItem extends AvsItem {
+    public AvsMediaNextCommandItem(String token) {
+        super(token);
+    }
 }

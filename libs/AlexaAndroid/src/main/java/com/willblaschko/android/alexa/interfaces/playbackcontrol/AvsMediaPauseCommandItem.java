@@ -10,5 +10,8 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  * @author will on 5/31/2016.
  */
 
-public class AvsMediaPauseCommandItem implements AvsItem {
+public class AvsMediaPauseCommandItem extends AvsItem {
+    public AvsMediaPauseCommandItem(String token) {
+        super(token);
+    }
 }

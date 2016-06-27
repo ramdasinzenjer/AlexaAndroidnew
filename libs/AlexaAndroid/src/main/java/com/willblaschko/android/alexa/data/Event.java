@@ -2,6 +2,8 @@ package com.willblaschko.android.alexa.data;
 
 import com.google.gson.Gson;
 
+import java.util.UUID;
+
 /**
  * A catch-all Event to classify return responses from the Amazon Alexa v20160207 API
  * Will handle calls to:
@@ -71,11 +73,13 @@ public class Event {
     }
 
     public static class Payload{
-
+        String token;
         String profile;
         String format;
         boolean muted;
         long volume;
+        long offsetInMilliseconds;
+
 
         public String getProfile() {
             return profile;
@@ -157,6 +161,14 @@ public class Event {
             payload.volume = volume;
             return this;
         }
+        public Builder setPayloadToken(String token){
+            payload.token = token;
+            return this;
+        }
+        public Builder setPlayloadOffsetInMilliseconds(long offsetInMilliseconds){
+            payload.offsetInMilliseconds = offsetInMilliseconds;
+            return this;
+        }
     }
 
 
@@ -164,7 +176,7 @@ public class Event {
         Builder builder = new Builder();
         builder.setHeaderNamespace("SpeechRecognizer")
                 .setHeaderName("Recognize")
-                .setHeaderMessageId("messageId-123")
+                .setHeaderMessageId(getUuid())
                 .setHeaderDialogRequestId("dialogRequest-321")
                 .setPayloadFormat("AUDIO_L16_RATE_16000_CHANNELS_1")
                 .setPayloadProfile("CLOSE_TALK");
@@ -175,7 +187,7 @@ public class Event {
         Builder builder = new Builder();
         builder.setHeaderNamespace("Speaker")
                 .setHeaderName("VolumeChanged")
-                .setHeaderMessageId("messageId-123")
+                .setHeaderMessageId(getUuid())
                 .setPayloadVolume(volume)
                 .setPayloadMuted(isMute);
         return builder.toJson();
@@ -184,7 +196,7 @@ public class Event {
         Builder builder = new Builder();
         builder.setHeaderNamespace("Speaker")
                 .setHeaderName("VolumeChanged")
-                .setHeaderMessageId("messageId-123")
+                .setHeaderMessageId(getUuid())
                 .setPayloadMuted(isMute);
         return builder.toJson();
     }
@@ -193,24 +205,69 @@ public class Event {
         Builder builder = new Builder();
         builder.setHeaderNamespace("SpeechRecognizer")
                 .setHeaderName("ExpectSpeechTimedOut")
-                .setHeaderMessageId("messageId-123");
+                .setHeaderMessageId(getUuid());
         return builder.toJson();
     }
 
-    public static String getPlaybackNearlyFinishedEvent(){
+    public static String getPlaybackNearlyFinishedEvent(String token, long offsetInMilliseconds){
         Builder builder = new Builder();
         builder.setHeaderNamespace("AudioPlayer")
                 .setHeaderName("PlaybackNearlyFinished")
-                .setHeaderMessageId("messageId-123");
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token)
+                .setPlayloadOffsetInMilliseconds(offsetInMilliseconds);
         return builder.toJson();
     }
+
+    public static String getSpeechStartedEvent(String token){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("SpeechSynthesizer")
+                .setHeaderName("SpeechStarted")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token);
+        return builder.toJson();
+    }
+
+    public static String getSpeechFinishedEvent(String token){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("SpeechSynthesizer")
+                .setHeaderName("SpeechFinished")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token);
+        return builder.toJson();
+    }
+
+
+    public static String getPlaybackStartedEvent(String token){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("AudioPlayer")
+                .setHeaderName("PlaybackStarted")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token);
+        return builder.toJson();
+    }
+
+    public static String getPlaybackFinishedEvent(String token){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("AudioPlayer")
+                .setHeaderName("PlaybackFinished")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token);
+        return builder.toJson();
+    }
+
 
     public static String getSynchronizeStateEvent(){
         Builder builder = new Builder();
         builder.setHeaderNamespace("System")
                 .setHeaderName("SynchronizeState")
-                .setHeaderMessageId("messageId-123");
+                .setHeaderMessageId(getUuid());
         return builder.toJson();
+    }
+
+    private static String getUuid(){
+        String uuid = UUID.randomUUID().toString();
+        return uuid;
     }
 }
 

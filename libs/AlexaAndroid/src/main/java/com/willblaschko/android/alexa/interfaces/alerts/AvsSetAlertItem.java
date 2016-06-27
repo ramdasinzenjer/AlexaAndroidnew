@@ -8,8 +8,7 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  * {@link com.willblaschko.android.alexa.data.Directive} response item type parsed so we can properly
  * deal with the incoming commands from the Alexa server.
  */
-public class AvsSetAlertItem implements AvsItem {
-    private String token;
+public class AvsSetAlertItem extends AvsItem {
     private String type;
     private String scheduledTime;
 
@@ -21,7 +20,7 @@ public class AvsSetAlertItem implements AvsItem {
      * @param scheduledTime the alert time
      */
     public AvsSetAlertItem(String token, String type, String scheduledTime){
-        this.token = token;
+        super(token);
         this.type = type;
         this.scheduledTime = scheduledTime;
     }

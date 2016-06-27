@@ -10,14 +10,15 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
  *
  * @author will on 5/21/2016.
  */
-public class AvsSetVolumeItem implements AvsItem{
+public class AvsSetVolumeItem extends AvsItem{
     long volume;
 
     /**
      * Create a new AdjustVolume {@link com.willblaschko.android.alexa.data.Directive}
      * @param volume the requested volume, 0-100 scale (requested as 1-10 by the user)
      */
-    public AvsSetVolumeItem(long volume){
+    public AvsSetVolumeItem(String token, long volume){
+        super(token);
         this.volume = volume;
     }
 

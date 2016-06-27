@@ -54,8 +54,37 @@ public class AlexaAudioPlayer {
     public static AlexaAudioPlayer getInstance(Context context){
         if(mInstance == null){
             mInstance = new AlexaAudioPlayer(context);
+            trimCache(context);
         }
         return mInstance;
+    }
+
+    private static void trimCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            if (dir != null && dir.isDirectory()) {
+                deleteDir(dir);
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+
+    private static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        if(dir != null){
+            // The directory is now empty so delete it
+            return dir.delete();
+        }
+        return false;
     }
 
     /**
@@ -131,12 +160,14 @@ public class AlexaAudioPlayer {
             //if we're playing, stop playing before we continue
             getMediaPlayer().stop();
         }
+
+        //reset our player
+        getMediaPlayer().reset();
+
         if(mItem instanceof AvsPlayRemoteItem){
             //cast our item for easy access
             AvsPlayRemoteItem playItem = (AvsPlayRemoteItem) item;
             try {
-                //reset our player
-                getMediaPlayer().reset();
                 //set stream
                 getMediaPlayer().setAudioStreamType(AudioManager.STREAM_MUSIC);
                 //play new url
@@ -150,8 +181,6 @@ public class AlexaAudioPlayer {
             //cast our item for easy access
             AvsPlayContentItem playItem = (AvsPlayContentItem) item;
             try {
-                //reset our player
-                getMediaPlayer().reset();
                 //set stream
                 getMediaPlayer().setAudioStreamType(AudioManager.STREAM_MUSIC);
                 //play new url
@@ -166,19 +195,18 @@ public class AlexaAudioPlayer {
                 bubbleUpError(e);
             }
         }else if(mItem instanceof AvsSpeakItem){
+            String fileName = mContext.getCacheDir()+"/"+System.currentTimeMillis()+".mp3";
             //cast our item for easy access
             AvsSpeakItem playItem = (AvsSpeakItem) item;
             //write out our raw audio data to a file
-            File path=new File(mContext.getCacheDir()+"/playfile.3gp");
+            File path=new File(fileName);
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(path);
                 fos.write(playItem.getAudio());
                 fos.close();
-                //reset our player
-                getMediaPlayer().reset();
                 //play our newly-written file
-                getMediaPlayer().setDataSource(mContext.getCacheDir() + "/playfile.3gp");
+                getMediaPlayer().setDataSource(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
                 //bubble up our error
@@ -268,7 +296,7 @@ public class AlexaAudioPlayer {
             @Override
             public void run() {
                 for(Callback callback: mCallbacks) {
-                    callback.playerProgress(percent);
+                    callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), percent);
                 }
             }
         });
@@ -279,10 +307,10 @@ public class AlexaAudioPlayer {
      */
     public interface Callback{
         void playerPrepared(AvsItem pendingItem);
-        void playerProgress(float percent);
+        void playerProgress(AvsItem currentItem, long offsetInMilliseconds, float percent);
         void itemComplete(AvsItem completedItem);
-        boolean playerError(int what, int extra);
-        void dataError(Exception e);
+        boolean playerError(AvsItem item, int what, int extra);
+        void dataError(AvsItem item, Exception e);
     }
 
     /**
@@ -291,7 +319,7 @@ public class AlexaAudioPlayer {
      */
     private void bubbleUpError(Exception e){
         for(Callback callback: mCallbacks){
-            callback.dataError(e);
+            callback.dataError(mItem, e);
         }
     }
 
@@ -328,7 +356,7 @@ public class AlexaAudioPlayer {
         @Override
         public boolean onError(MediaPlayer mp, int what, int extra) {
             for(Callback callback: mCallbacks){
-                boolean response = callback.playerError(what, extra);
+                boolean response = callback.playerError(mItem, what, extra);
                 if(response){
                     return response;
                 }

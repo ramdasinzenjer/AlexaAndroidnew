@@ -3,13 +3,16 @@ package com.willblaschko.android.alexa.interfaces.system;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
-import com.willblaschko.android.alexa.interfaces.AvsException;
+import com.willblaschko.android.alexa.connection.ClientUtil;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.SendEvent;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Open Down Channel {@link com.willblaschko.android.alexa.data.Event} to open a persistent connection with the Alexa server. Currently doesn't seem to work as expected.
@@ -28,24 +31,20 @@ public class OpenDownchannel extends SendEvent {
         }
         Log.i(TAG, "Starting Open Downchannel procedure");
         long start = System.currentTimeMillis();
-
-        //call the parent class's prepareConnection() in order to prepare our URL POST
         try {
-            prepareConnection(url, accessToken);
-            if(callback != null) {
-                callback.success(completeGet());
-                callback.complete();
-            }else{
-                completeGet();
-            }
+            OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            client.newCall(request).execute();
+
             Log.i(TAG, "Downchannel open");
             Log.i(TAG, "Open Downchannel process took: " + (System.currentTimeMillis() - start));
         } catch (IOException e) {
             onError(callback, e);
-        } catch (AvsException e) {
-            onError(callback, e);
         }
-
     }
 
     private void onError(final AsyncCallback<AvsResponse, Exception> callback, Exception e) {
@@ -54,6 +53,7 @@ public class OpenDownchannel extends SendEvent {
             callback.complete();
         }
     }
+
 
     @Override
     @NotNull

@@ -3,6 +3,7 @@ package com.willblaschko.android.alexa.interfaces.response;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.willblaschko.android.alexa.data.Directive;
 import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsItem;
@@ -10,6 +11,7 @@ import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.alerts.AvsSetAlertItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
+import com.willblaschko.android.alexa.interfaces.errors.AvsResponseException;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaNextCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPauseCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPlayCommandItem;
@@ -31,13 +33,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static okhttp3.internal.Util.UTF_8;
 
 /**
  * Static helper class to parse incoming responses from the Alexa server and generate a corresponding
@@ -64,46 +67,52 @@ public class ResponseParser {
         List<Directive> directives = new ArrayList<>();
         HashMap<String, ByteArrayInputStream> audio = new HashMap<>();
 
-        MultipartStream mpStream = new MultipartStream(stream, boundary.getBytes(), 100000, null);
+        byte[] bytes = IOUtils.toByteArray(stream);
+        String responseString = string(bytes);
+
+        MultipartStream mpStream = new MultipartStream(new ByteArrayInputStream(bytes), boundary.getBytes(), 100000, null);
 
         Pattern pattern = Pattern.compile("<(.*?)>");
 
         //have to do this otherwise mpStream throws an exception
         if(mpStream.skipPreamble()){
             Log.i(TAG, "Found initial boundary: true");
-        }else {
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(stream, writer, Charset.defaultCharset());
-            String body = writer.toString();
-            Log.e(TAG, body);
-            throw new AvsException("Response from Alexa server malformed. ");
-        }
 
-        //we have to use the count hack here because otherwise readBoundary() throws an exception
-        int count = 0;
-        while (count < 1 || mpStream.readBoundary()) {
-            String headers = mpStream.readHeaders();
-            ByteArrayOutputStream data = new ByteArrayOutputStream();
-            mpStream.readBodyData(data);
-            if (!isJson(headers)) {
-                // get the audio data
-                //convert our multipart into byte data
-                String contentId = getCID(headers);
-                if(contentId != null) {
-                    Matcher matcher = pattern.matcher(contentId);
-                    if (matcher.find()) {
-                        String currentId = "cid:" + matcher.group(1);
-                        audio.put(currentId, new ByteArrayInputStream(data.toByteArray()));
+            //we have to use the count hack here because otherwise readBoundary() throws an exception
+            int count = 0;
+            while (count < 1 || mpStream.readBoundary()) {
+                String headers = mpStream.readHeaders();
+                ByteArrayOutputStream data = new ByteArrayOutputStream();
+                mpStream.readBodyData(data);
+                if (!isJson(headers)) {
+                    // get the audio data
+                    //convert our multipart into byte data
+                    String contentId = getCID(headers);
+                    if(contentId != null) {
+                        Matcher matcher = pattern.matcher(contentId);
+                        if (matcher.find()) {
+                            String currentId = "cid:" + matcher.group(1);
+                            audio.put(currentId, new ByteArrayInputStream(data.toByteArray()));
+                        }
                     }
+                } else {
+                    // get the json directive
+                    String directive = data.toString(Charset.defaultCharset().displayName());
+                    directives.add(getDirective(directive));
                 }
-            } else {
-                // get the json directive
-                String directive = data.toString(Charset.defaultCharset().displayName());
-                directives.add(getDirective(directive));
+                count++;
             }
-            count++;
-        }
 
+        }else {
+
+            Log.i(TAG, "Response Body: \n" + string(bytes));
+            try {
+                directives.add(getDirective(responseString));
+            }catch (JsonParseException e) {
+                e.printStackTrace();
+                throw new AvsException("Response from Alexa server malformed. ");
+            }
+        }
 
         AvsResponse response = new AvsResponse();
 
@@ -112,10 +121,10 @@ public class ResponseParser {
             Log.i(TAG, "Parsing directive type: "+directive.getHeader().getNamespace()+":"+directive.getHeader().getName());
 
             if(directive.isPlayBehaviorReplaceAll()){
-                response.add(0, new AvsReplaceAllItem());
+                response.add(0, new AvsReplaceAllItem(directive.getPayload().getToken()));
             }
             if(directive.isPlayBehaviorReplaceEnqueued()){
-                response.add(new AvsReplaceEnqueuedItem());
+                response.add(new AvsReplaceEnqueuedItem(directive.getPayload().getToken()));
             }
 
             AvsItem item = null;
@@ -123,34 +132,36 @@ public class ResponseParser {
             if(directive.isTypeSpeak()){
                 String cid = directive.getPayload().getUrl();
                 ByteArrayInputStream sound = audio.get(cid);
-                item = new AvsSpeakItem(cid, sound);
+                item = new AvsSpeakItem(directive.getPayload().getToken(), cid, sound);
             }else if(directive.isTypePlay()){
                 String url = directive.getPayload().getAudioItem().getStream().getUrl();
                 if(url.contains("cid:")){
                     ByteArrayInputStream sound = audio.get(url);
-                    item = new AvsPlayAudioItem(url, sound);
+                    item = new AvsPlayAudioItem(directive.getPayload().getToken(), url, sound);
                 }else{
-                    item = new AvsPlayRemoteItem(url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
+                    item = new AvsPlayRemoteItem(directive.getPayload().getToken(), url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
                 }
             }else if(directive.isTypeSetAlert()){
                 item = new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
                 response.add(item);
             }else if(directive.isTypeSetMute()){
-                item = new AvsSetMuteItem(directive.getPayload().isMute());
+                item = new AvsSetMuteItem(directive.getPayload().getToken(), directive.getPayload().isMute());
             }else if(directive.isTypeSetVolume()){
-                item = new AvsSetVolumeItem(directive.getPayload().getVolume());
+                item = new AvsSetVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
             }else if(directive.isTypeAdjustVolume()){
-                item = new AvsAdjustVolumeItem(directive.getPayload().getVolume());
+                item = new AvsAdjustVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
             }else if(directive.isTypeExpectSpeech()){
-                item = new AvsExpectSpeechItem(directive.getPayload().getTimeoutInMilliseconds());
+                item = new AvsExpectSpeechItem(directive.getPayload().getToken(), directive.getPayload().getTimeoutInMilliseconds());
             }else if(directive.isTypeMediaPlay()){
-                item = new AvsMediaPlayCommandItem();
+                item = new AvsMediaPlayCommandItem(directive.getPayload().getToken());
             }else if(directive.isTypeMediaPause()){
-                item = new AvsMediaPauseCommandItem();
+                item = new AvsMediaPauseCommandItem(directive.getPayload().getToken());
             }else if(directive.isTypeMediaNext()){
-                item = new AvsMediaNextCommandItem();
+                item = new AvsMediaNextCommandItem(directive.getPayload().getToken());
             }else if(directive.isTypeMediaPrevious()){
-                item = new AvsMediaPreviousCommandItem();
+                item = new AvsMediaPreviousCommandItem(directive.getPayload().getToken());
+            }else if(directive.isTypeException()){
+                item = new AvsResponseException(directive);
             }
 
             if(item != null){
@@ -163,6 +174,11 @@ public class ResponseParser {
         return response;
     }
 
+
+    private static final String string(byte[] bytes) throws IOException {
+        return new String(bytes, UTF_8);
+    }
+
     /**
      * Parse our directive using Gson into an object
      * @param directive the string representation of our JSON object
@@ -171,6 +187,9 @@ public class ResponseParser {
     private static Directive getDirective(String directive){
         Gson gson = new Gson();
         Directive.DirectiveWrapper wrapper = gson.fromJson(directive, Directive.DirectiveWrapper.class);
+        if(wrapper.getDirective() == null){
+            return gson.fromJson(directive, Directive.class);
+        }
         return wrapper.getDirective();
     }
 
