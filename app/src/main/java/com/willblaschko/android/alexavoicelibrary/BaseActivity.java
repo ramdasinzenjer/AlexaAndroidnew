@@ -136,7 +136,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void itemComplete(AvsItem completedItem) {
             almostDoneFired = false;
-            //sendPlaybackFinishedEvent(completedItem);
+            sendPlaybackFinishedEvent(completedItem);
             avsQueue.remove(completedItem);
             checkQueue();
         }
