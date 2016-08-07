@@ -69,29 +69,43 @@ public class MainActivity extends BaseActivity implements ActionsFragment.Action
 
 
     protected void stateListening(){
-        status.setText(R.string.status_listening);
-        loading.setVisibility(View.GONE);
-        statusBar.animate().alpha(1);
+
+        if(status != null) {
+            status.setText(R.string.status_listening);
+            loading.setVisibility(View.GONE);
+            statusBar.animate().alpha(1);
+        }
     }
     protected void stateProcessing(){
-        status.setText(R.string.status_processing);
-        loading.setVisibility(View.VISIBLE);
-        statusBar.animate().alpha(1);
+
+        if(status != null) {
+            status.setText(R.string.status_processing);
+            loading.setVisibility(View.VISIBLE);
+            statusBar.animate().alpha(1);
+        }
     }
     protected void stateSpeaking(){
-        status.setText(R.string.status_speaking);
-        loading.setVisibility(View.VISIBLE);
-        statusBar.animate().alpha(1);
+
+        if(status != null) {
+            status.setText(R.string.status_speaking);
+            loading.setVisibility(View.VISIBLE);
+            statusBar.animate().alpha(1);
+        }
     }
     protected void statePrompting(){
-        status.setText("");
-        loading.setVisibility(View.VISIBLE);
-        statusBar.animate().alpha(1);
+
+        if(status != null) {
+            status.setText("");
+            loading.setVisibility(View.VISIBLE);
+            statusBar.animate().alpha(1);
+        }
     }
     protected void stateFinished(){
-        status.setText("");
-        loading.setVisibility(View.GONE);
-        statusBar.animate().alpha(0);
+        if(status != null) {
+            status.setText("");
+            loading.setVisibility(View.GONE);
+            statusBar.animate().alpha(0);
+        }
     }
     protected void stateNone(){
         statusBar.animate().alpha(0);
