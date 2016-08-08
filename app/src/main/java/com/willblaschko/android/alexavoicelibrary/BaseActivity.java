@@ -179,8 +179,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
      */
     private void sendPlaybackFinishedEvent(AvsItem item){
-        alexaManager.sendPlaybackFinishedEvent(item, requestCallback);
-        Log.i(TAG, "Sending SpeechFinishedEvent");
+        if (item != null) {
+            alexaManager.sendPlaybackFinishedEvent(item, requestCallback);
+            Log.i(TAG, "Sending SpeechFinishedEvent");
+        }
     }
 
     //async callback for commands sent to Alexa Voice
