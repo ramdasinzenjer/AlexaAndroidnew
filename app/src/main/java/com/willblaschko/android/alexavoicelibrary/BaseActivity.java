@@ -1,7 +1,7 @@
 package com.willblaschko.android.alexavoicelibrary;
 
+import android.app.Instrumentation;
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -418,15 +418,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      * @param keyCode keycode for the hardware button we're emulating
      */
     private static void sendMediaButton(Context context, int keyCode) {
-        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
-        context.sendOrderedBroadcast(intent, null);
-
-        keyEvent = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-        intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
-        context.sendOrderedBroadcast(intent, null);
+        Instrumentation inst = new Instrumentation();
+        inst.sendKeyDownUpSync(keyCode);
     }
 
     private void setState(final int state){
