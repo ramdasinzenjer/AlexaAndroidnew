@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
@@ -195,7 +194,7 @@ public class AlexaAudioPlayer {
                 bubbleUpError(e);
             }
         }else if(mItem instanceof AvsSpeakItem){
-            String fileName = mContext.getCacheDir()+"/"+System.currentTimeMillis()+".mp3";
+            String fileName = mContext.getExternalFilesDir(null)+"/"+System.currentTimeMillis()+".mp3";
             //cast our item for easy access
             AvsSpeakItem playItem = (AvsSpeakItem) item;
             //write out our raw audio data to a file
@@ -292,14 +291,9 @@ public class AlexaAudioPlayer {
      * application so we can do "almost done" type of calls
      */
     private void postProgress(final float percent){
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                for(Callback callback: mCallbacks) {
-                    callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), percent);
-                }
-            }
-        });
+        for(Callback callback: mCallbacks) {
+            callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), percent);
+        }
     }
 
     /**
