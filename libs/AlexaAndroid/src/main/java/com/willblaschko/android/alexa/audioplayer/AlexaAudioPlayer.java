@@ -3,8 +3,7 @@ package com.willblaschko.android.alexa.audioplayer;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.Message;
+import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -222,28 +221,6 @@ public class AlexaAudioPlayer {
     }
 
     /**
-     * A handler to report back playback progress to the controlling application
-     */
-    protected Handler mHandler = new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case SHOW_PROGRESS:
-                    if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                        int pos = mMediaPlayer.getCurrentPosition();
-                        final float percent = (float) pos / (float) mMediaPlayer.getDuration();
-                        msg = obtainMessage(SHOW_PROGRESS);
-                        sendMessageDelayed(msg, 50);
-                        postProgress(percent);
-
-                    }
-                    break;
-            }
-        }
-    };
-
-    /**
      * Check whether our MediaPlayer is currently playing
      * @return true playing, false not
      */
@@ -339,7 +316,22 @@ public class AlexaAudioPlayer {
                 callback.playerPrepared(mItem);
             }
             mMediaPlayer.start();
-            mHandler.sendEmptyMessage(SHOW_PROGRESS);
+            new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    while(mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                        int pos = mMediaPlayer.getCurrentPosition();
+                        final float percent = (float) pos / (float) mMediaPlayer.getDuration();
+                        postProgress(percent);
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return null;
+                }
+            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     };
 
