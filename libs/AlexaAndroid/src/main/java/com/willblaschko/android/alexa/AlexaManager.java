@@ -652,9 +652,7 @@ public class AlexaManager {
      * @param callback
      */
     public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
-        if (!(item instanceof AvsSpeakItem)) {
-            sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
-        }
+        sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
     }
 
 
