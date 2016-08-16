@@ -134,7 +134,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 playbackStartedFired = true;
                 sendPlaybackStartedEvent(item);
             }
-            if(!almostDoneFired){
+            if(!almostDoneFired && percent > .1){
                 almostDoneFired = true;
                 if(item instanceof AvsPlayAudioItem) {
                     sendPlaybackNearlyFinishedEvent((AvsPlayAudioItem) item, offsetInMilliseconds);
