@@ -131,9 +131,9 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             }
             if(!playbackStartedFired){
                 playbackStartedFired = true;
-                //sendPlaybackStartedEvent(item);
+                sendPlaybackStartedEvent(item);
             }
-            if(!almostDoneFired){
+            if(!almostDoneFired && percent > .1){
                 almostDoneFired = true;
                 sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds);
             }

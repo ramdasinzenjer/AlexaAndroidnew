@@ -193,18 +193,17 @@ public class AlexaAudioPlayer {
                 bubbleUpError(e);
             }
         }else if(mItem instanceof AvsSpeakItem){
-            String fileName = mContext.getExternalFilesDir(null)+"/"+System.currentTimeMillis()+".mp3";
             //cast our item for easy access
             AvsSpeakItem playItem = (AvsSpeakItem) item;
             //write out our raw audio data to a file
-            File path=new File(fileName);
+            File path=new File(mContext.getCacheDir(), System.currentTimeMillis()+".mp3");
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(path);
                 fos.write(playItem.getAudio());
                 fos.close();
                 //play our newly-written file
-                getMediaPlayer().setDataSource(fileName);
+                getMediaPlayer().setDataSource(path.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
                 //bubble up our error
