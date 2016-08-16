@@ -209,6 +209,16 @@ public class Event {
         return builder.toJson();
     }
 
+    public static String getSpeechNearlyFinishedEvent(String token, long offsetInMilliseconds){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("SpeechSynthesizer")
+                .setHeaderName("PlaybackNearlyFinished")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token)
+                .setPlayloadOffsetInMilliseconds(offsetInMilliseconds);
+        return builder.toJson();
+    }
+
     public static String getPlaybackNearlyFinishedEvent(String token, long offsetInMilliseconds){
         Builder builder = new Builder();
         builder.setHeaderNamespace("AudioPlayer")

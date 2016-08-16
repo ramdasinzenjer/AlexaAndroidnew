@@ -18,6 +18,7 @@ import com.willblaschko.android.alexa.audioplayer.AlexaAudioPlayer;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
+import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
 import com.willblaschko.android.alexa.interfaces.errors.AvsResponseException;
@@ -133,9 +134,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 playbackStartedFired = true;
                 sendPlaybackStartedEvent(item);
             }
-            if(!almostDoneFired && percent > .1){
+            if(!almostDoneFired){
                 almostDoneFired = true;
-                sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds);
+                if(item instanceof AvsPlayAudioItem) {
+                    sendPlaybackNearlyFinishedEvent((AvsPlayAudioItem) item, offsetInMilliseconds);
+                }
             }
         }
 
@@ -153,7 +156,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
         @Override
         public boolean playerError(AvsItem item, int what, int extra) {
-            sendPlaybackNearlyFinishedEvent(item, 500);
+            playerProgress(item, 10, .2f);
             itemComplete(item);
             return false;
         }
@@ -161,7 +164,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void dataError(AvsItem item, Exception e) {
             e.printStackTrace();
-            sendPlaybackNearlyFinishedEvent(item, 500);
+            playerProgress(item, 10, .2f);
             itemComplete(item);
         }
 
@@ -172,7 +175,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      * Send an event back to Alexa that we're nearly done with our current playback event, this should supply us with the next item
      * https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/reference/audioplayer#PlaybackNearlyFinished Event
      */
-    private void sendPlaybackNearlyFinishedEvent(AvsItem item, long offsetInMilliseconds){
+    private void sendPlaybackNearlyFinishedEvent(AvsPlayAudioItem item, long offsetInMilliseconds){
         if (item != null) {
             alexaManager.sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds, requestCallback);
             Log.i(TAG, "Sending PlaybackNearlyFinishedEvent");
@@ -195,7 +198,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
     private void sendPlaybackFinishedEvent(AvsItem item){
         if (item != null) {
             alexaManager.sendPlaybackFinishedEvent(item, requestCallback);
-            Log.i(TAG, "Sending SpeechFinishedEvent");
+            Log.i(TAG, "Sending PlaybackFinishedEvent");
         }
     }
 

@@ -10,6 +10,7 @@ import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.GenericSendEvent;
+import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendAudio;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendText;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendVoice;
@@ -651,7 +652,7 @@ public class AlexaManager {
      * @param item our playback item
      * @param callback
      */
-    public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
+    public void sendPlaybackNearlyFinishedEvent(AvsPlayAudioItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
         sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
     }
 
