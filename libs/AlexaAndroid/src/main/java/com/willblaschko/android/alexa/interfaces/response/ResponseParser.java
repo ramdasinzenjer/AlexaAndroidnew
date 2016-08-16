@@ -1,5 +1,6 @@
 package com.willblaschko.android.alexa.interfaces.response;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -59,6 +60,10 @@ public class ResponseParser {
     /**
      * Get the AvsItem associated with a Alexa API post/get, this will contain a list of {@link AvsItem} directives,
      * if applicable.
+     *
+     * Includes hacky work around for PausePrompt items suggested by Eric@Amazon
+     * @see <a href="https://forums.developer.amazon.com/questions/28021/response-about-the-shopping-list.html">Forum Discussion</a>
+     *
      * @param stream the input stream as a result of our  OkHttp post/get calls
      * @param boundary the boundary we're using to separate the multiparts
      * @return the parsed AvsResponse
@@ -124,6 +129,15 @@ public class ResponseParser {
                 } else {
                     // get the json directive
                     String directive = data.toString(Charset.defaultCharset().displayName());
+
+
+                    /*
+                    * hacky workaround proposed by Eric@Amazon (https://forums.developer.amazon.com/questions/28021/response-about-the-shopping-list.html)
+                    * to skip any items that are PausePrompts which don't play correctly on Android (malformed MP3s?)
+                    */
+                    if(!TextUtils.isEmpty(directive) && directive.toLowerCase().contains("PausePrompt")){
+                        continue;
+                    }
                     directives.add(getDirective(directive));
                 }
                 count++;

@@ -116,18 +116,24 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
     private AlexaAudioPlayer.Callback alexaAudioPlayerCallback = new AlexaAudioPlayer.Callback() {
 
         private boolean almostDoneFired = false;
+        private boolean playbackStartedFired = false;
 
         @Override
         public void playerPrepared(AvsItem pendingItem) {
-            almostDoneFired = false;
-            sendPlaybackStartedEvent(pendingItem);
 
         }
 
         @Override
         public void playerProgress(AvsItem item, long offsetInMilliseconds, float percent) {
             Log.i(TAG, "Player percent: "+percent);
-            if(percent > .5f && !almostDoneFired){
+            if(item instanceof AvsPlayContentItem){
+                return;
+            }
+            if(!playbackStartedFired){
+                playbackStartedFired = true;
+                //sendPlaybackStartedEvent(item);
+            }
+            if(!almostDoneFired){
                 almostDoneFired = true;
                 sendPlaybackNearlyFinishedEvent(item, offsetInMilliseconds);
             }
@@ -136,9 +142,13 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         @Override
         public void itemComplete(AvsItem completedItem) {
             almostDoneFired = false;
-            sendPlaybackFinishedEvent(completedItem);
+            playbackStartedFired = false;
             avsQueue.remove(completedItem);
             checkQueue();
+            if(completedItem instanceof AvsPlayContentItem){
+                return;
+            }
+            sendPlaybackFinishedEvent(completedItem);
         }
 
         @Override
@@ -154,6 +164,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             sendPlaybackNearlyFinishedEvent(item, 500);
             itemComplete(item);
         }
+
+
     };
 
     /**
