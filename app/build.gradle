@@ -24,13 +24,13 @@ android {
                 minifyEnabled false
                 shrinkResources true
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                signingConfig signingConfigs.releaseConfig
+                //signingConfig signingConfigs.releaseConfig
             }
             release {
                 minifyEnabled false
                 shrinkResources true
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                signingConfig signingConfigs.releaseConfig
+                //signingConfig signingConfigs.releaseConfig
             }
         }
 
