@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.VoiceHelper;
+import com.willblaschko.android.alexa.audioplayer.AlexaAudioPlayer;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
@@ -36,7 +37,8 @@ public class SpeechSendText extends SpeechSendEvent {
      * @param callback our event callbacks
      * @throws IOException
      */
-    public void sendText(final Context context, final String url, final String accessToken, String text, final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
+    public void sendText(final Context context, final String url, final String accessToken, String text,
+                         final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
 
         if(callback != null){
             callback.start();

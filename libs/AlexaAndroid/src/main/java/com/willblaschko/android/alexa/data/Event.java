@@ -2,6 +2,8 @@ package com.willblaschko.android.alexa.data;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -59,6 +61,10 @@ public class Event {
             this.name = name;
         }
 
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+
         public String getMessageId() {
             return messageId;
         }
@@ -80,7 +86,6 @@ public class Event {
         long volume;
         long offsetInMilliseconds;
 
-
         public String getProfile() {
             return profile;
         }
@@ -94,9 +99,14 @@ public class Event {
 
     public static class EventWrapper{
         Event event;
+        List<Event> context;
 
         public Event getEvent() {
             return event;
+        }
+
+        public List<Event> getContext() {
+            return context;
         }
 
         public String toJson(){
@@ -108,6 +118,8 @@ public class Event {
         Event event = new Event();
         Payload payload = new Payload();
         Header header = new Header();
+        List<Event> context = new ArrayList<>();
+
         public Builder(){
             event.setPayload(payload);
             event.setHeader(header);
@@ -116,11 +128,24 @@ public class Event {
         public EventWrapper build(){
             EventWrapper wrapper = new EventWrapper();
             wrapper.event = event;
+
+            if (context != null && !context.isEmpty() && !(context.size() == 1 && context.get(0) == null)) {
+                wrapper.context = context;
+            }
+
             return wrapper;
         }
 
         public String toJson(){
             return build().toJson();
+        }
+
+        public Builder setContext(List<Event> context) {
+            if (context == null) {
+                return this;
+            }
+            this.context = context;
+            return this;
         }
 
         public Builder setHeaderNamespace(String namespace){
@@ -171,7 +196,6 @@ public class Event {
         }
     }
 
-
     public static String getSpeechRecognizerEvent(){
         Builder builder = new Builder();
         builder.setHeaderNamespace("SpeechRecognizer")
@@ -216,6 +240,15 @@ public class Event {
                 .setHeaderMessageId(getUuid())
                 .setPayloadToken(token)
                 .setPlayloadOffsetInMilliseconds(offsetInMilliseconds);
+        return builder.toJson();
+    }
+
+    public static String getTimerStartedEvent(String token) {
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("Alerts")
+                .setHeaderName("SetAlertSucceeded")
+                .setHeaderMessageId(getUuid())
+                .setPayloadToken(token);
         return builder.toJson();
     }
 

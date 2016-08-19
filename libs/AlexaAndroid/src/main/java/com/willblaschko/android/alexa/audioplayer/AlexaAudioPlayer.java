@@ -12,6 +12,8 @@ import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
 import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -110,6 +112,11 @@ public class AlexaAudioPlayer {
         if(!mCallbacks.contains(callback)){
             mCallbacks.add(callback);
         }
+    }
+
+    @Nullable
+    public AvsItem getCurrentItem() {
+        return mItem;
     }
 
     /**

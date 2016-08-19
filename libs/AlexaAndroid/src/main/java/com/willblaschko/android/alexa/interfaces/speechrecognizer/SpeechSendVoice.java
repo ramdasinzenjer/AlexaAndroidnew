@@ -6,9 +6,9 @@ import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
-import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
 
 import org.jetbrains.annotations.NotNull;
@@ -56,7 +56,8 @@ public class SpeechSendVoice extends SpeechSendEvent {
      * @deprecated Manage this state on the application side, instead, and send the audio using {@link SpeechSendAudio}
      */
     @Deprecated
-    public void startRecording(final String url, final String accessToken, @Nullable byte[] buffer, @Nullable final AsyncCallback<Void, Exception> callback) throws IOException {
+    public void startRecording(final String url, final String accessToken, @Nullable byte[] buffer,
+                               @Nullable final AsyncCallback<Void, Exception> callback) throws IOException {
         synchronized(mLock) {
             mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, AUDIO_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
         }

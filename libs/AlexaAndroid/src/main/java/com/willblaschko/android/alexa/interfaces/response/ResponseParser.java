@@ -70,18 +70,25 @@ public class ResponseParser {
         byte[] bytes = IOUtils.toByteArray(stream);
         String responseString = string(bytes);
 
+        Log.d("ResponseTest", responseString);
+
         MultipartStream mpStream = new MultipartStream(new ByteArrayInputStream(bytes), boundary.getBytes(), 100000, null);
 
         Pattern pattern = Pattern.compile("<(.*?)>");
 
         //have to do this otherwise mpStream throws an exception
-        if(mpStream.skipPreamble()){
+        if (mpStream.skipPreamble()) {
             Log.i(TAG, "Found initial boundary: true");
 
             //we have to use the count hack here because otherwise readBoundary() throws an exception
             int count = 0;
             while (count < 1 || mpStream.readBoundary()) {
-                String headers = mpStream.readHeaders();
+                String headers;
+                try {
+                    headers = mpStream.readHeaders();
+                } catch (MultipartStream.MalformedStreamException exp) {
+                    break;
+                }
                 ByteArrayOutputStream data = new ByteArrayOutputStream();
                 mpStream.readBodyData(data);
                 if (!isJson(headers)) {
@@ -103,7 +110,7 @@ public class ResponseParser {
                 count++;
             }
 
-        }else {
+        } else {
 
             Log.i(TAG, "Response Body: \n" + string(bytes));
             try {
@@ -116,7 +123,7 @@ public class ResponseParser {
 
         AvsResponse response = new AvsResponse();
 
-        for(Directive directive: directives){
+        for (Directive directive: directives) {
 
             Log.i(TAG, "Parsing directive type: "+directive.getHeader().getNamespace()+":"+directive.getHeader().getName());
 
@@ -143,7 +150,6 @@ public class ResponseParser {
                 }
             }else if(directive.isTypeSetAlert()){
                 item = new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
-                response.add(item);
             }else if(directive.isTypeSetMute()){
                 item = new AvsSetMuteItem(directive.getPayload().getToken(), directive.getPayload().isMute());
             }else if(directive.isTypeSetVolume()){

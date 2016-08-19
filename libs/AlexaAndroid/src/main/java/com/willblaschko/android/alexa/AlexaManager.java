@@ -10,6 +10,7 @@ import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.GenericSendEvent;
+import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendAudio;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendText;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.SpeechSendVoice;
@@ -152,7 +153,7 @@ public class AlexaManager {
     /**
      * Send a get {@link com.willblaschko.android.alexa.data.Directive} request to the Alexa server to open a persistent connection
      */
-    public void sendOpenDownchannelDirective(){
+    public void sendOpenDownchannelDirective(@Nullable final AsyncCallback<AvsResponse, Exception> callback) {
         //check if the user is already logged in
         mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
 
@@ -173,7 +174,7 @@ public class AlexaManager {
                                 protected AvsResponse doInBackground(Void... params) {
                                     try {
                                         //create a new OpenDownchannel object and send our request
-                                        new OpenDownchannel(url, token, new AsyncEventHandler(AlexaManager.this, null));
+                                        new OpenDownchannel(url, token, new AsyncEventHandler(AlexaManager.this, callback));
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -197,7 +198,7 @@ public class AlexaManager {
                         @Override
                         public void onSuccess() {
                             //call our function again
-                            sendOpenDownchannelDirective();
+                            sendOpenDownchannelDirective(callback);
                         }
                     });
                 }
@@ -652,9 +653,11 @@ public class AlexaManager {
      * @param callback
      */
     public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
+        if (item == null || !isAudioPlayItem(item)) {
+            return;
+        }
         sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
     }
-
 
     /**
      * Send an event to indicate that playback of a speech item has started
@@ -663,12 +666,15 @@ public class AlexaManager {
      * @param item our speak item
      * @param callback
      */
-    public void sendPlaybackStartedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback){
+    public void sendPlaybackStartedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback) {
+        if (item == null) {
+            return;
+        }
         String event;
-        if(item instanceof AvsSpeakItem){
-            event = Event.getSpeechStartedEvent(item.getToken());
-        }else{
+        if (isAudioPlayItem(item)) {
             event = Event.getPlaybackStartedEvent(item.getToken());
+        } else {
+            event = Event.getSpeechStartedEvent(item.getToken());
         }
         sendEvent(event, callback);
     }
@@ -681,11 +687,14 @@ public class AlexaManager {
      * @param callback
      */
     public void sendPlaybackFinishedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback){
+        if (item == null) {
+            return;
+        }
         String event;
-        if(item instanceof AvsSpeakItem){
-            event = Event.getSpeechFinishedEvent(item.getToken());
-        }else{
+        if (isAudioPlayItem(item)) {
             event = Event.getPlaybackFinishedEvent(item.getToken());
+        } else {
+            event = Event.getSpeechFinishedEvent(item.getToken());
         }
         sendEvent(event, callback);
     }
@@ -742,6 +751,10 @@ public class AlexaManager {
             }
 
         });
+    }
+
+    private boolean isAudioPlayItem (AvsItem item) {
+        return item != null && (item instanceof AvsPlayAudioItem || !(item instanceof AvsSpeakItem));
     }
 
     private String getEventsUrl(){

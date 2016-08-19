@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -50,6 +51,7 @@ public class ClientUtil {
                 specs.add(cs);
 
                 client = new OkHttpClient.Builder()
+                        .readTimeout(60, TimeUnit.MINUTES)
                         //Add Custom SSL Socket Factory which adds TLS 1.1 and 1.2 support for Android 4.1-4.4
                         .sslSocketFactory(new TLSSocketFactoryCompat(), trustManager)
                         .connectionSpecs(specs)

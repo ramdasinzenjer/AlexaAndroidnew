@@ -17,7 +17,8 @@ public class GenericSendEvent extends SendEvent{
 
     String event;
 
-    public GenericSendEvent(String url, String accessToken, String event, final AsyncCallback<AvsResponse, Exception> callback){
+    public GenericSendEvent(String url, String accessToken, String event,
+                            final AsyncCallback<AvsResponse, Exception> callback){
 
         this.event = event;
 
