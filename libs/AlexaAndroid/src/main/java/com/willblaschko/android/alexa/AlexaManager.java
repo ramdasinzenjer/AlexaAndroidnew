@@ -183,6 +183,7 @@ public class AlexaManager {
                                 @Override
                                 protected void onPostExecute(AvsResponse avsResponse) {
                                     super.onPostExecute(avsResponse);
+                                    sendOpenDownchannelDirective(callback);
                                 }
                             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }

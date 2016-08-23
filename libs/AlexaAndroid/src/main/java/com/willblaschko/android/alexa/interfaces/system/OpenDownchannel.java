@@ -11,10 +11,7 @@ import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -47,26 +44,16 @@ public class OpenDownchannel extends SendEvent {
                     .build();
 
             final Response response = client.newCall(request).execute();
-
-            Headers headers = response.headers();
-            String header = headers.get("content-type");
-            String boundary = "";
-
-            Pattern pattern = Pattern.compile("boundary=(.*?);");
-            Matcher matcher = pattern.matcher(header);
-            if (matcher.find()) {
-                boundary = matcher.group(1);
-            }
-
+            final String boundary = getBoundary(response);
             final BufferedSource source = response.body().source();
             Buffer buffer = new Buffer();
             while (!source.exhausted()) {
-                response.body().source().read(buffer, 8192);
+                source.read(buffer, 8192);
                 AvsResponse val = new AvsResponse();
 
                 try {
                     //final String test = buffer.readString(Charset.defaultCharset());
-                    val = ResponseParser.parseResponse(buffer.inputStream(), boundary);
+                    val = ResponseParser.parseResponse(buffer.inputStream(), boundary, true);
                 } catch (Exception exp) {
                     exp.printStackTrace();
                 }
@@ -75,6 +62,8 @@ public class OpenDownchannel extends SendEvent {
                     callback.success(val);
                 }
             }
+
+            response.body().close();
 
             Log.i(TAG, "Downchannel open");
             Log.i(TAG, "Open Downchannel process took: " + (System.currentTimeMillis() - start));

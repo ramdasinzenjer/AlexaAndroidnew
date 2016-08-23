@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,30 +81,33 @@ public abstract class SendEvent {
         return parseResponse();
     }
 
-    private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException{
+    private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException {
         Request request = mRequestBuilder.build();
         Response response = mClient.newCall(request).execute();
 
+        final AvsResponse val = response.code() == HttpURLConnection.HTTP_NO_CONTENT ? new AvsResponse() :
+                ResponseParser.parseResponse(response.body().byteStream(), getBoundary(response));
+
+        response.body().close();
+
+        return val;
+    }
+
+    protected String getBoundary(Response response) throws IOException {
         Headers headers = response.headers();
         String header = headers.get("content-type");
         String boundary = "";
 
-        AvsResponse val = new AvsResponse();
-
-        if(header != null) {
-
+        if (header != null) {
             Pattern pattern = Pattern.compile("boundary=(.*?);");
             Matcher matcher = pattern.matcher(header);
             if (matcher.find()) {
                 boundary = matcher.group(1);
             }
-            val = ResponseParser.parseResponse(response.body().byteStream(), boundary);
-        }else{
-            Log.i(TAG, "Body: "+response.body().string());
+        } else {
+            Log.i(TAG, "Body: " + response.body().string());
         }
-        response.body().close();
-
-        return val;
+        return boundary;
     }
 
 

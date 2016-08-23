@@ -26,6 +26,7 @@ import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -52,6 +53,8 @@ public class ResponseParser {
 
     public static final String TAG = "ResponseParser";
 
+    private static final Pattern PATTERN = Pattern.compile("<(.*?)>");
+
     /**
      * Get the AvsItem associated with a Alexa API post/get, this will contain a list of {@link AvsItem} directives,
      * if applicable.
@@ -62,19 +65,36 @@ public class ResponseParser {
      */
 
     public static AvsResponse parseResponse(InputStream stream, String boundary) throws IOException, IllegalStateException, AvsException {
+        return parseResponse(stream, boundary, false);
+    }
+
+    public static AvsResponse parseResponse(InputStream stream, String boundary, boolean checkBoundary) throws IOException, IllegalStateException, AvsException {
         long start = System.currentTimeMillis();
 
         List<Directive> directives = new ArrayList<>();
         HashMap<String, ByteArrayInputStream> audio = new HashMap<>();
 
-        byte[] bytes = IOUtils.toByteArray(stream);
+        byte[] bytes;
+        try {
+            bytes = IOUtils.toByteArray(stream);
+        } catch (IOException exp) {
+            exp.printStackTrace();
+            return new AvsResponse();
+        }
+
         String responseString = string(bytes);
+        if (checkBoundary) {
+            final String responseTrim = responseString.trim();
+            final String testBoundary = "--" + boundary;
+            if (!StringUtils.isEmpty(responseTrim) && StringUtils.endsWith(responseTrim, testBoundary) && !StringUtils.startsWith(responseTrim, testBoundary)) {
+                responseString = "--" + boundary + "\r\n" + responseString;
+                bytes = responseString.getBytes();
+            }
+        }
 
         Log.d("ResponseTest", responseString);
 
         MultipartStream mpStream = new MultipartStream(new ByteArrayInputStream(bytes), boundary.getBytes(), 100000, null);
-
-        Pattern pattern = Pattern.compile("<(.*?)>");
 
         //have to do this otherwise mpStream throws an exception
         if (mpStream.skipPreamble()) {
@@ -96,7 +116,7 @@ public class ResponseParser {
                     //convert our multipart into byte data
                     String contentId = getCID(headers);
                     if(contentId != null) {
-                        Matcher matcher = pattern.matcher(contentId);
+                        Matcher matcher = PATTERN.matcher(contentId);
                         if (matcher.find()) {
                             String currentId = "cid:" + matcher.group(1);
                             audio.put(currentId, new ByteArrayInputStream(data.toByteArray()));
@@ -111,7 +131,6 @@ public class ResponseParser {
             }
 
         } else {
-
             Log.i(TAG, "Response Body: \n" + string(bytes));
             try {
                 directives.add(getDirective(responseString));
@@ -180,6 +199,10 @@ public class ResponseParser {
         return response;
     }
 
+    private static final void parseDirective() {
+
+    }
+
 
     private static final String string(byte[] bytes) throws IOException {
         return new String(bytes, UTF_8);
@@ -190,10 +213,10 @@ public class ResponseParser {
      * @param directive the string representation of our JSON object
      * @return the reflected directive
      */
-    private static Directive getDirective(String directive){
+    private static Directive getDirective(String directive) throws AvsException {
         Gson gson = new Gson();
         Directive.DirectiveWrapper wrapper = gson.fromJson(directive, Directive.DirectiveWrapper.class);
-        if(wrapper.getDirective() == null){
+        if (wrapper.getDirective() == null) {
             return gson.fromJson(directive, Directive.class);
         }
         return wrapper.getDirective();

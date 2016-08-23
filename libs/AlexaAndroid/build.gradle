@@ -11,31 +11,31 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'AlexaAndroid'
-
-    publishedGroupId = 'com.jerrymiah.android.alexa'
-    libraryName = 'AlexaAndroid'
-    artifact = 'AlexaAndroid'
-
-    libraryDescription = 'A forked version of Will Blaschko\'s Alexa Android Library which is a library to abstract access to the Amazon Alexa service for Android applications.'
-
-    siteUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid'
-    gitUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid.git'
-
-    libraryVersion = '2.2-alpha'
-
-    developerId = 'jeremiahstephenson'
-    developerName = 'Jeremiah Stephenson'
-    developerEmail = 'jeremiahstephenson@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
+//ext {
+//    bintrayRepo = 'maven'
+//    bintrayName = 'AlexaAndroid'
+//
+//    publishedGroupId = 'com.jerrymiah.android.alexa'
+//    libraryName = 'AlexaAndroid'
+//    artifact = 'AlexaAndroid'
+//
+//    libraryDescription = 'A forked version of Will Blaschko\'s Alexa Android Library which is a library to abstract access to the Amazon Alexa service for Android applications.'
+//
+//    siteUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid'
+//    gitUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid.git'
+//
+//    libraryVersion = '2.2-alpha'
+//
+//    developerId = 'jeremiahstephenson'
+//    developerName = 'Jeremiah Stephenson'
+//    developerEmail = 'jeremiahstephenson@gmail.com'
+//
+//    licenseName = 'The Apache Software License, Version 2.0'
+//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//    allLicenses = ["Apache-2.0"]
+//}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -43,6 +43,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    compile 'org.apache.commons:commons-lang3:3.4'
     testCompile 'junit:junit:4.12'
 }
 
@@ -73,5 +74,5 @@ android {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
