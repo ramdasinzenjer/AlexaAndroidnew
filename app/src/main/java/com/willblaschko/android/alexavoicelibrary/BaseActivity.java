@@ -106,7 +106,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         audioPlayer.addCallback(alexaAudioPlayerCallback);
 
         //open our downchannel
-        alexaManager.sendOpenDownchannelDirective();
+        alexaManager.sendOpenDownchannelDirective(requestCallback);
 
         //synchronize our device
         alexaManager.sendSynchronizeStateEvent(requestCallback);

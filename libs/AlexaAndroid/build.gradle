@@ -4,16 +4,21 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.3'
+        classpath 'com.android.tools.build:gradle:2.2.0-beta2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.github.ben-manes.versions' // ./gradlew dependencyUpdates -Drevision=release
 
-//ext {
+def versionMajor = 2
+def versionMinor = 2
+def versionPatch = 1
+def versionMajorMinorPatch = "${versionMajor}.${versionMinor}.${versionPatch}"
+
+//ext { // ./gradlew bintrayUpload -xJavadoc
 //    bintrayRepo = 'maven'
 //    bintrayName = 'AlexaAndroid'
 //
@@ -26,7 +31,7 @@ apply plugin: 'com.jfrog.bintray'
 //    siteUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid'
 //    gitUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid.git'
 //
-//    libraryVersion = '2.2-alpha'
+//    libraryVersion = versionMajorMinorPatch
 //
 //    developerId = 'jeremiahstephenson'
 //    developerName = 'Jeremiah Stephenson'
@@ -40,9 +45,9 @@ apply plugin: 'com.jfrog.bintray'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.intellij:annotations:+@jar'
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.google.code.gson:gson:2.7'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'org.apache.commons:commons-lang3:3.4'
     testCompile 'junit:junit:4.12'
 }
@@ -53,6 +58,7 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 24
+        versionName versionMajorMinorPatch
     }
 
 

@@ -3,6 +3,7 @@ package com.willblaschko.android.alexa.interfaces.speechrecognizer;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
+import com.willblaschko.android.alexa.interfaces.AvsAudioException;
 import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
@@ -47,12 +48,20 @@ public class SpeechSendAudio extends SpeechSendEvent {
         //call the parent class's prepareConnection() in order to prepare our URL POST
         try {
             prepareConnection(url, accessToken);
-            if(callback != null) {
-                callback.success(completePost());
-                callback.complete();
-            }else{
-                completePost();
+            final AvsResponse response = completePost();
+
+            if (response.isEmpty()) {
+                if (callback != null) {
+                    callback.failure(new AvsAudioException("Nothing came back"));
+                }
+                return;
             }
+
+            if (callback != null) {
+                callback.success(response);
+                callback.complete();
+            }
+
             Log.i(TAG, "Audio sent");
             Log.i(TAG, "Audio sending process took: " + (System.currentTimeMillis() - start));
         } catch (IOException e) {
