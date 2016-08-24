@@ -36,6 +36,7 @@ public class OpenDownchannel extends SendEvent {
         }
         Log.i(TAG, "Starting Open Downchannel procedure");
         long start = System.currentTimeMillis();
+        Response response = null;
         try {
             OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
             Request request = new Request.Builder()
@@ -43,7 +44,7 @@ public class OpenDownchannel extends SendEvent {
                     .addHeader("Authorization", "Bearer " + accessToken)
                     .build();
 
-            final Response response = client.newCall(request).execute();
+            response = client.newCall(request).execute();
             final String boundary = getBoundary(response);
             final BufferedSource source = response.body().source();
             Buffer buffer = new Buffer();
@@ -52,7 +53,6 @@ public class OpenDownchannel extends SendEvent {
                 AvsResponse val = new AvsResponse();
 
                 try {
-                    //final String test = buffer.readString(Charset.defaultCharset());
                     val = ResponseParser.parseResponse(buffer.inputStream(), boundary, true);
                 } catch (Exception exp) {
                     exp.printStackTrace();
@@ -63,17 +63,19 @@ public class OpenDownchannel extends SendEvent {
                 }
             }
 
-            response.body().close();
-
             Log.i(TAG, "Downchannel open");
             Log.i(TAG, "Open Downchannel process took: " + (System.currentTimeMillis() - start));
         } catch (IOException e) {
             onError(callback, e);
+        } finally {
+            if (response != null) {
+                response.body().close();
+            }
         }
     }
 
     private void onError(final AsyncCallback<AvsResponse, Exception> callback, Exception e) {
-        if(callback != null){
+        if (callback != null) {
             callback.failure(e);
             callback.complete();
         }

@@ -92,8 +92,6 @@ public class ResponseParser {
             }
         }
 
-        Log.d("ResponseTest", responseString);
-
         MultipartStream mpStream = new MultipartStream(new ByteArrayInputStream(bytes), boundary.getBytes(), 100000, null);
 
         //have to do this otherwise mpStream throws an exception

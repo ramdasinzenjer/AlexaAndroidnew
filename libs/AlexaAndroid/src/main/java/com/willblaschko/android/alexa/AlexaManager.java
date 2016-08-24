@@ -2,6 +2,7 @@ package com.willblaschko.android.alexa;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
@@ -44,6 +45,7 @@ public class AlexaManager {
     private VoiceHelper mVoiceHelper;
     private Context mContext;
     private boolean mIsRecording = false;
+    private Handler post = new Handler();
 
     private AlexaManager(Context context, String productId){
         mContext = context.getApplicationContext();
@@ -183,7 +185,12 @@ public class AlexaManager {
                                 @Override
                                 protected void onPostExecute(AvsResponse avsResponse) {
                                     super.onPostExecute(avsResponse);
-                                    sendOpenDownchannelDirective(callback);
+                                    post.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            sendOpenDownchannelDirective(callback);
+                                        }
+                                    }, 5000);
                                 }
                             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }
