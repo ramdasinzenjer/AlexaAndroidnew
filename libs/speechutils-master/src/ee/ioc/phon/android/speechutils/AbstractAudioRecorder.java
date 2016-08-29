@@ -137,7 +137,7 @@ public abstract class AbstractAudioRecorder implements AudioRecorder {
         int len = buffer.length;
         int numOfBytes = recorder.read(buffer, 0, len);
         int status = getStatus(numOfBytes, len);
-        if (status == 0) {
+        if (status == 0 && numOfBytes >= 0) {
             // arraycopy(Object src, int srcPos, Object dest, int destPos, int length)
             // numOfBytes <= len, typically == len, but at the end of the recording can be < len.
             System.arraycopy(buffer, 0, mRecording, mRecordedLength, numOfBytes);
