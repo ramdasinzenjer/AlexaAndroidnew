@@ -15,7 +15,7 @@ apply plugin: 'com.github.ben-manes.versions' // ./gradlew dependencyUpdates -Dr
 
 def versionMajor = 2
 def versionMinor = 2
-def versionPatch = 2
+def versionPatch = 3
 def versionMajorMinorPatch = "${versionMajor}.${versionMinor}.${versionPatch}"
 
 ext { // ./gradlew bintrayUpload -xJavadoc
@@ -56,7 +56,7 @@ android {
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 24
         versionName versionMajorMinorPatch
     }
