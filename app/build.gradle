@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 
 if (file('signing.gradle').exists()) {
     apply from: 'signing.gradle'
+}else{
+    throw new TaskExecutionException(null, new Exception("Unable to find signing.gradle, please replace Android buildTypes > signing configs with your own configuration."));
 }
 
 android {
