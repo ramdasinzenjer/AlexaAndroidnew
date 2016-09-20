@@ -109,6 +109,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         //open our downchannel
         alexaManager.sendOpenDownchannelDirective(requestCallback);
 
+
         //synchronize our device
         //alexaManager.sendSynchronizeStateEvent(requestCallback);
     }

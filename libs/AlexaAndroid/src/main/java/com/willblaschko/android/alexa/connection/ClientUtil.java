@@ -22,6 +22,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.TlsVersion;
 
+import static android.R.attr.start;
+
 /**
  * Create a singleton OkHttp client that, hopefully, will someday be able to make sure all connections are valid according to AVS's strict
  * security policy--this will hopefully fix the Connection Reset By Peer issue.
@@ -77,7 +79,6 @@ public class ClientUtil {
                     return chain.proceed(request);
                 }
             });
-
             mClient = client.build();
         }
         return mClient;
