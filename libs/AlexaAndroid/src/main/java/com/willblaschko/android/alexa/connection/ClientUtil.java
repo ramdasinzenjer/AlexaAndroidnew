@@ -1,9 +1,10 @@
 package com.willblaschko.android.alexa.connection;
 
-import java.security.KeyManagementException;
+import android.os.Build;
+import android.util.Log;
+
+import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +15,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import okhttp3.CipherSuite;
 import okhttp3.ConnectionSpec;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.TlsVersion;
 
 /**
@@ -30,44 +35,51 @@ public class ClientUtil {
 
     public static OkHttpClient getTLS12OkHttpClient(){
         if(mClient == null) {
-            OkHttpClient client = null;
-            try {
-                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init((KeyStore) null);
-                TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-                if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-                    throw new IllegalStateException("Unexpected default trust managers:"
-                            + Arrays.toString(trustManagers));
-                }
-                X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+            OkHttpClient.Builder client = new OkHttpClient.Builder();
+            if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
+                try {
 
-                SSLContext sc = SSLContext.getInstance("TLSv1.2");
-                sc.init(null, null, null);
+                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    trustManagerFactory.init((KeyStore) null);
+                    TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+                    if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+                        throw new IllegalStateException("Unexpected default trust managers:"
+                                + Arrays.toString(trustManagers));
+                    }
 
-                ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                        .tlsVersions(TlsVersion.TLS_1_2)
-                        .build();
-                List<ConnectionSpec> specs = new ArrayList<>();
-                specs.add(cs);
+                    X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
-                client = new OkHttpClient.Builder()
-                        .readTimeout(60, TimeUnit.MINUTES)
-                        //Add Custom SSL Socket Factory which adds TLS 1.1 and 1.2 support for Android 4.1-4.4
-                        .sslSocketFactory(new TLSSocketFactoryCompat(), trustManager)
-                        .connectionSpecs(specs)
-                        .build();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            } finally {
-                if (client == null) {
-                    client = new OkHttpClient();
+                    SSLContext sc = SSLContext.getInstance("TLSv1.2");
+                    sc.init(null, null, null);
+
+                    String[] enabled = sc.getSocketFactory().getDefaultCipherSuites();
+                    String[] supported = sc.getSocketFactory().getSupportedCipherSuites();
+
+                    client.sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()), trustManager);
+
+                    ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                            .tlsVersions(TlsVersion.TLS_1_2)
+                            .cipherSuites(CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                                    CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+                            .build();
+
+                    List<ConnectionSpec> specs = new ArrayList<>();
+                    specs.add(cs);
+
+                    client.connectionSpecs(specs);
+                } catch (Exception exc) {
+                    Log.e("OkHttpTLSCompat", "Error while setting TLS 1.2", exc);
                 }
             }
-            mClient = client;
+            client.addNetworkInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request().newBuilder().addHeader("Connection", "close").build();
+                    return chain.proceed(request);
+                }
+            });
+          
+            mClient = client.build();
         }
         return mClient;
     }

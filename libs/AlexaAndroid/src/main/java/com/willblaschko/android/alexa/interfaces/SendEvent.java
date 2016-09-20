@@ -18,7 +18,6 @@ import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -38,7 +37,6 @@ public abstract class SendEvent {
     private Call currentCall;
 
     //OkHttpClient for transfer of data
-    OkHttpClient mClient = ClientUtil.getTLS12OkHttpClient();
     Request.Builder mRequestBuilder = new Request.Builder();
     MultipartBody.Builder mBodyBuilder;
 
@@ -92,7 +90,7 @@ public abstract class SendEvent {
     private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException {
         Request request = mRequestBuilder.build();
 
-        currentCall = mClient.newCall(request);
+        currentCall = ClientUtil.getTLS12OkHttpClient().newCall(request);
 
         try {
             Response response = currentCall.execute();

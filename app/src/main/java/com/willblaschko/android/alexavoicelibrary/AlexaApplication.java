@@ -1,6 +1,6 @@
 package com.willblaschko.android.alexavoicelibrary;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.willblaschko.android.alexavoicelibrary.utility.SigningKey;
@@ -9,7 +9,7 @@ import com.willblaschko.android.alexavoicelibrary.utility.SigningKey;
  * An application to handle all our initialization for the Alexa library before we
  * launch our VoiceLaunchActivity
  */
-public class AlexaApplication extends Application {
+public class AlexaApplication extends MultiDexApplication {
 
     //Our Amazon application product ID, this is passed to the server when we authenticate
     private static final String PRODUCT_ID = "interactive_conversation";

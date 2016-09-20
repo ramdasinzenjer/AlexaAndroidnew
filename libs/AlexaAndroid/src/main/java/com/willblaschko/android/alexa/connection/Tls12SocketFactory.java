@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -25,56 +22,55 @@ import javax.net.ssl.SSLSocketFactory;
  * @link https://developer.android.com/reference/javax/net/ssl/SSLSocket.html
  * @see SSLSocketFactory
  */
-public class TLSSocketFactoryCompat extends SSLSocketFactory {
+public class Tls12SocketFactory extends SSLSocketFactory {
 
-    private SSLSocketFactory internalSSLSocketFactory;
+    private static final String[] TLS_V12_ONLY = {"TLSv1.2"};
 
-    public TLSSocketFactoryCompat() throws KeyManagementException, NoSuchAlgorithmException {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, null, null);
-        internalSSLSocketFactory = context.getSocketFactory();
+    final SSLSocketFactory delegate;
+
+    public Tls12SocketFactory(SSLSocketFactory base) {
+        this.delegate = base;
     }
 
     @Override
     public String[] getDefaultCipherSuites() {
-        return internalSSLSocketFactory.getDefaultCipherSuites();
+        return delegate.getDefaultCipherSuites();
     }
 
     @Override
     public String[] getSupportedCipherSuites() {
-        return internalSSLSocketFactory.getSupportedCipherSuites();
+        return delegate.getSupportedCipherSuites();
     }
 
     @Override
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket(s, host, port, autoClose));
+        return patch(delegate.createSocket(s, host, port, autoClose));
     }
 
     @Override
     public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port));
+        return patch(delegate.createSocket(host, port));
     }
 
     @Override
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port, localHost, localPort));
+        return patch(delegate.createSocket(host, port, localHost, localPort));
     }
 
     @Override
     public Socket createSocket(InetAddress host, int port) throws IOException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket(host, port));
+        return patch(delegate.createSocket(host, port));
     }
 
     @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-        return enableTLSOnSocket(internalSSLSocketFactory.createSocket(address, port, localAddress, localPort));
+        return patch(delegate.createSocket(address, port, localAddress, localPort));
     }
 
-    private Socket enableTLSOnSocket(Socket socket) {
-        if(socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket)socket).setEnabledProtocols(new String[] {"TLSv1.2"});
+    private Socket patch(Socket s) {
+        if (s instanceof SSLSocket) {
+            ((SSLSocket) s).setEnabledProtocols(TLS_V12_ONLY);
         }
-        return socket;
+        return s;
     }
-
 }

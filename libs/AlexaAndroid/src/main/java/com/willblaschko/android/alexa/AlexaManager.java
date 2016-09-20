@@ -1,9 +1,11 @@
 package com.willblaschko.android.alexa;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 
+import com.google.android.gms.security.ProviderInstaller;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.callbacks.AuthorizationCallback;
 import com.willblaschko.android.alexa.data.Event;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Security;
 
 import okio.BufferedSink;
 
@@ -35,6 +38,11 @@ import okio.BufferedSink;
  * Beyond initialization, mostly it supplies wrapped helper functions to the other classes to assure authentication state.
  */
 public class AlexaManager {
+
+    static {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
+
     private static final String TAG = "AlexaManager";
 
     private static AlexaManager mInstance;
@@ -52,7 +60,20 @@ public class AlexaManager {
         mContext = context.getApplicationContext();
         mAuthorizationManager = new AuthorizationManager(mContext, productId);
         mVoiceHelper = VoiceHelper.getInstance(mContext);
+        ProviderInstaller.installIfNeededAsync(context, providerInstallListener);
     }
+
+    private ProviderInstaller.ProviderInstallListener providerInstallListener = new ProviderInstaller.ProviderInstallListener() {
+        @Override
+        public void onProviderInstalled() {
+            // Provider installed
+        }
+
+        @Override
+        public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
+            // Provider installation failed
+        }
+    };
 
     public static AlexaManager getInstance(Context context, String productId){
         if(mInstance == null){

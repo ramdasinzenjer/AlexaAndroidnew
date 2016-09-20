@@ -110,7 +110,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         alexaManager.sendOpenDownchannelDirective(requestCallback);
 
         //synchronize our device
-        alexaManager.sendSynchronizeStateEvent(requestCallback);
+        //alexaManager.sendSynchronizeStateEvent(requestCallback);
     }
 
     //Our callback that deals with removing played items in our media player and then checking to see if more items exist

@@ -47,8 +47,12 @@ dependencies {
     compile 'com.intellij:annotations:+@jar'
     compile 'com.google.code.gson:gson:2.7'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
-    compile 'com.squareup.okhttp3:okhttp:3.4.1'
-    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    compile 'com.madgag.spongycastle:core:1.54.0.0'
+    compile 'com.madgag.spongycastle:prov:1.54.0.0'
+    compile 'com.madgag.spongycastle:pkix:1.54.0.0'
+    compile 'com.madgag.spongycastle:pg:1.54.0.0'
+    compile 'com.google.android.gms:play-services:9.4.+'
     testCompile 'junit:junit:4.12'
 }
 
