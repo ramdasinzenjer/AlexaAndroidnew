@@ -50,7 +50,7 @@ public class SpeechSendAudio extends SpeechSendEvent {
             prepareConnection(url, accessToken);
             final AvsResponse response = completePost();
 
-            if (response.isEmpty()) {
+            if (response != null && response.isEmpty()) {
                 if (callback != null) {
                     callback.failure(new AvsAudioException("Nothing came back"));
                 }
@@ -58,18 +58,21 @@ public class SpeechSendAudio extends SpeechSendEvent {
             }
 
             if (callback != null) {
-                callback.success(response);
+                if (response != null) {
+                    callback.success(response);
+                }
                 callback.complete();
             }
 
             Log.i(TAG, "Audio sent");
             Log.i(TAG, "Audio sending process took: " + (System.currentTimeMillis() - start));
-        } catch (IOException e) {
-            onError(callback, e);
-        } catch (AvsException e) {
+        } catch (IOException|AvsException e) {
             onError(callback, e);
         }
+    }
 
+    public void cancelRequest() {
+        cancelCall();
     }
 
     public void onError(final AsyncCallback<AvsResponse, Exception> callback, Exception e) {

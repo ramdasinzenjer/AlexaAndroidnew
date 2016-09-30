@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -32,8 +33,9 @@ public abstract class SendEvent {
 
     //the output stream that extending classes will use to pass data to the AVS server
     protected ByteArrayOutputStream mOutputStream = new ByteArrayOutputStream();
-
     protected AsyncCallback<Void, Exception> mCallback;
+
+    private Call currentCall;
 
     //OkHttpClient for transfer of data
     OkHttpClient mClient = ClientUtil.getTLS12OkHttpClient();
@@ -81,16 +83,32 @@ public abstract class SendEvent {
         return parseResponse();
     }
 
+    protected void cancelCall() {
+        if (currentCall != null && !currentCall.isCanceled()) {
+            currentCall.cancel();
+        }
+    }
+
     private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException {
         Request request = mRequestBuilder.build();
-        Response response = mClient.newCall(request).execute();
 
-        final AvsResponse val = response.code() == HttpURLConnection.HTTP_NO_CONTENT ? new AvsResponse() :
-                ResponseParser.parseResponse(response.body().byteStream(), getBoundary(response));
+        currentCall = mClient.newCall(request);
 
-        response.body().close();
+        try {
+            Response response = currentCall.execute();
 
-        return val;
+            final AvsResponse val = response.code() == HttpURLConnection.HTTP_NO_CONTENT ? new AvsResponse() :
+                    ResponseParser.parseResponse(response.body().byteStream(), getBoundary(response));
+
+            response.body().close();
+
+            return val;
+        } catch (IOException exp) {
+            if (!currentCall.isCanceled()) {
+                return new AvsResponse();
+            }
+        }
+        return null;
     }
 
     protected String getBoundary(Response response) throws IOException {

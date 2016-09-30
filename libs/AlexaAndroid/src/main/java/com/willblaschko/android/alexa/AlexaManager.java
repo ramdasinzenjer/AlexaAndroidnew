@@ -621,6 +621,20 @@ public class AlexaManager {
         });
     }
 
+    public void cancelAudioRequest() {
+        //check if the user is already logged in
+        mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
+            @Override
+            public void success(Boolean result) {
+                if (result) {
+                    //if the user is logged in
+                    getSpeechSendAudio().cancelRequest();
+                }
+            }
+
+        });
+    }
+
     /** Send a confirmation to the Alexa server that the device volume has been changed in response to a directive
      * See: {@link #sendEvent(String, AsyncCallback)}
      *
