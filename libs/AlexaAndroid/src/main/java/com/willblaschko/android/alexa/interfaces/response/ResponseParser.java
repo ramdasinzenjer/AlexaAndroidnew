@@ -8,6 +8,7 @@ import com.willblaschko.android.alexa.data.Directive;
 import com.willblaschko.android.alexa.interfaces.AvsException;
 import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
+import com.willblaschko.android.alexa.interfaces.alerts.AvsDeleteAlertItem;
 import com.willblaschko.android.alexa.interfaces.alerts.AvsSetAlertItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayAudioItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
@@ -167,6 +168,8 @@ public class ResponseParser {
                 }
             }else if(directive.isTypeSetAlert()){
                 item = new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
+            }else if (directive.isTypeDeleteAlert()) {
+                item = new AvsDeleteAlertItem(directive.getPayload().getToken());
             }else if(directive.isTypeSetMute()){
                 item = new AvsSetMuteItem(directive.getPayload().getToken(), directive.getPayload().isMute());
             }else if(directive.isTypeSetVolume()){

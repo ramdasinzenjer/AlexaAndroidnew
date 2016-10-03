@@ -243,10 +243,34 @@ public class Event {
         return builder.toJson();
     }
 
-    public static String getTimerStartedEvent(String token) {
+    public static String getSetAlertSucceededEvent(String token) {
+        return getAlertEvent(token, "SetAlertSucceeded");
+    }
+
+    public static String getSetAlertFailedEvent(String token) {
+        return getAlertEvent(token, "SetAlertFailed");
+    }
+
+    public static String getDeleteAlertSucceededEvent(String token) {
+        return getAlertEvent(token, "DeleteAlertSucceeded");
+    }
+
+    public static String getDeleteAlertFailedEvent(String token) {
+        return getAlertEvent(token, "DeleteAlertFailed");
+    }
+
+    public static String getAlertStartedEvent(String token) {
+        return getAlertEvent(token, "AlertStarted");
+    }
+
+    public static String getAlertStoppedEvent(String token) {
+        return getAlertEvent(token, "AlertStopped");
+    }
+
+    private static String getAlertEvent(String token, String type) {
         Builder builder = new Builder();
         builder.setHeaderNamespace("Alerts")
-                .setHeaderName("SetAlertSucceeded")
+                .setHeaderName(type)
                 .setHeaderMessageId(getUuid())
                 .setPayloadToken(token);
         return builder.toJson();

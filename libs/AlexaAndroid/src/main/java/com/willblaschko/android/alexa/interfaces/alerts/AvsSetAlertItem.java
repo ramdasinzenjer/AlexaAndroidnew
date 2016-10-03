@@ -12,6 +12,9 @@ public class AvsSetAlertItem extends AvsItem {
     private String type;
     private String scheduledTime;
 
+    public static final String TIMER = "TIMER";
+    public static final String ALERT = "ALERT";
+
     /**
      * Create a new AVSItem directive for an alert
      *
@@ -23,5 +26,29 @@ public class AvsSetAlertItem extends AvsItem {
         super(token);
         this.type = type;
         this.scheduledTime = scheduledTime;
+    }
+
+    public String getScheduledTime() {
+        return scheduledTime;
+    }
+
+    public void setScheduledTime(String scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isTimer() {
+        return type.equals(TIMER);
+    }
+
+    public boolean isAlert() {
+        return type.equals(ALERT);
     }
 }

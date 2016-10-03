@@ -23,6 +23,7 @@ public class Directive {
     private static final String TYPE_SPEAK = "Speak";
     private static final String TYPE_PLAY = "Play";
     private static final String TYPE_SET_ALERT = "SetAlert";
+    private static final String TYPE_DELETE_ALERT = "DeleteAlert";
     private static final String TYPE_SET_VOLUME = "SetVolume";
     private static final String TYPE_ADJUST_VOLUME = "AdjustVolume";
     private static final String TYPE_SET_MUTE = "SetMute";
@@ -49,6 +50,10 @@ public class Directive {
 
     public boolean isTypeSetAlert(){
         return TextUtils.equals(header.getName(), TYPE_SET_ALERT);
+    }
+
+    public boolean isTypeDeleteAlert() {
+        return TextUtils.equals(header.getName(), TYPE_DELETE_ALERT);
     }
 
     public boolean isTypeSetVolume(){
