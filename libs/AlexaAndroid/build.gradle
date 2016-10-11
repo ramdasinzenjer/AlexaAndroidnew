@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
     }
 }
@@ -15,7 +15,7 @@ apply plugin: 'com.github.ben-manes.versions' // ./gradlew dependencyUpdates -Dr
 
 def versionMajor = 2
 def versionMinor = 2
-def versionPatch = 4
+def versionPatch = 5
 def versionMajorMinorPatch = "${versionMajor}.${versionMinor}.${versionPatch}"
 
 //ext { // ./gradlew bintrayUpload -xJavadoc
@@ -54,7 +54,7 @@ dependencies {
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion "24.0.3"
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 24
