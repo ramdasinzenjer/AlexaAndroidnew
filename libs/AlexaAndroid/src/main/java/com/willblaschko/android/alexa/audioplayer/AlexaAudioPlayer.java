@@ -270,6 +270,18 @@ public class AlexaAudioPlayer {
         mMediaPlayer = null;
     }
 
+    public void duck(float value) {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setVolume(value, value);
+        }
+    }
+
+    public void unDuck() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setVolume(1F, 1F);
+        }
+    }
+
     /**
      * If our callback is not null, post our player progress back to the controlling
      * application so we can do "almost done" type of calls

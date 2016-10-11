@@ -13,7 +13,7 @@ public class AvsSetAlertItem extends AvsItem {
     private String scheduledTime;
 
     public static final String TIMER = "TIMER";
-    public static final String ALERT = "ALERT";
+    public static final String ALARM = "ALARM";
 
     /**
      * Create a new AVSItem directive for an alert
@@ -48,7 +48,7 @@ public class AvsSetAlertItem extends AvsItem {
         return type.equals(TIMER);
     }
 
-    public boolean isAlert() {
-        return type.equals(ALERT);
+    public boolean isAlarm() {
+        return type.equals(ALARM);
     }
 }

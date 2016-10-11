@@ -267,6 +267,14 @@ public class Event {
         return getAlertEvent(token, "AlertStopped");
     }
 
+    public static String getAlertEnteredForegroundEvent(String token) {
+        return getAlertEvent(token, "AlertEnteredForeground");
+    }
+
+    public static String getAlertEnteredBackgroundEvent(String token) {
+        return getAlertEvent(token, "AlertEnteredBackground");
+    }
+
     private static String getAlertEvent(String token, String type) {
         Builder builder = new Builder();
         builder.setHeaderNamespace("Alerts")
