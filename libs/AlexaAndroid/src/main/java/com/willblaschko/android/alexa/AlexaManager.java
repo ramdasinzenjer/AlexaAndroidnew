@@ -714,10 +714,17 @@ public class AlexaManager {
             return;
         }
         String event;
-        if (isAudioPlayItem(item)) {
-            event = Event.getPlaybackStartedEvent(item.getToken());
-        } else {
-            event = Event.getSpeechStartedEvent(item.getToken());
+        try {
+            if (item instanceof AvsSpeakItem) {
+                event = Event.getSpeechStartedEvent(item.getToken());
+            } else {
+                event = Event.getPlaybackStartedEvent(item.getToken());
+            }
+        }catch (NullPointerException e){
+            if(callback != null) {
+                callback.failure(e);
+            }
+            return;
         }
         sendEvent(event, callback);
     }
