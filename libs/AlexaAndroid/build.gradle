@@ -14,33 +14,33 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.ben-manes.versions' // ./gradlew dependencyUpdates -Drevision=release
 
 def versionMajor = 2
-def versionMinor = 2
-def versionPatch = 5
+def versionMinor = 3
+def versionPatch = 1
 def versionMajorMinorPatch = "${versionMajor}.${versionMinor}.${versionPatch}"
 
-//ext { // ./gradlew bintrayUpload -xJavadoc
-//    bintrayRepo = 'maven'
-//    bintrayName = 'AlexaAndroid'
-//
-//    publishedGroupId = 'com.jerrymiah.android.alexa'
-//    libraryName = 'AlexaAndroid'
-//    artifact = 'AlexaAndroid'
-//
-//    libraryDescription = 'A forked version of Will Blaschko\'s Alexa Android Library which is a library to abstract access to the Amazon Alexa service for Android applications.'
-//
-//    siteUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid'
-//    gitUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid.git'
-//
-//    libraryVersion = versionMajorMinorPatch
-//
-//    developerId = 'jeremiahstephenson'
-//    developerName = 'Jeremiah Stephenson'
-//    developerEmail = 'jeremiahstephenson@gmail.com'
-//
-//    licenseName = 'The Apache Software License, Version 2.0'
-//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-//    allLicenses = ["Apache-2.0"]
-//}
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'AlexaAndroid'
+
+    publishedGroupId = 'com.willblaschko.android.alexa'
+    libraryName = 'AlexaAndroid'
+    artifact = 'AlexaAndroid'
+
+    libraryDescription = 'A library to abstract access to the Amazon Alexa service for Android applications.'
+
+    siteUrl = 'https://github.com/willblaschko/AlexaAndroid'
+    gitUrl = 'https://github.com/willblaschko/AlexaAndroid.git'
+
+    libraryVersion = versionMajorMinorPatch
+
+    developerId = 'willblaschko'
+    developerName = 'Will Blaschko'
+    developerEmail = 'will.blaschko@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
