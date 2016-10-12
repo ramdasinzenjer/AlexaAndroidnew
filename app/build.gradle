@@ -7,7 +7,7 @@ if (file('signing.gradle').exists()) {
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "23.0.3"
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         applicationId "com.willblaschko.android.alexavoicelibrary"
@@ -24,13 +24,13 @@ android {
                 minifyEnabled false
                 shrinkResources true
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                //signingConfig signingConfigs.releaseConfig
+                signingConfig signingConfigs.releaseConfig
             }
             release {
                 minifyEnabled false
                 shrinkResources true
                 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-                //signingConfig signingConfigs.releaseConfig
+                signingConfig signingConfigs.releaseConfig
             }
         }
 
