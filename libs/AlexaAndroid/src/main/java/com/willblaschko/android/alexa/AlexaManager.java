@@ -666,10 +666,17 @@ public class AlexaManager {
      */
     public void sendPlaybackStartedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback){
         String event;
-        if(item instanceof AvsSpeakItem){
-            event = Event.getSpeechStartedEvent(item.getToken());
-        }else{
-            event = Event.getPlaybackStartedEvent(item.getToken());
+        try {
+            if (item instanceof AvsSpeakItem) {
+                event = Event.getSpeechStartedEvent(item.getToken());
+            } else {
+                event = Event.getPlaybackStartedEvent(item.getToken());
+            }
+        }catch (NullPointerException e){
+            if(callback != null) {
+                callback.failure(e);
+            }
+            return;
         }
         sendEvent(event, callback);
     }
