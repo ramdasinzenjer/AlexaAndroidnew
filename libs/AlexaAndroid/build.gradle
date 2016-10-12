@@ -33,6 +33,7 @@ ext {
 
     libraryVersion = versionMajorMinorPatch
 
+
     developerId = 'willblaschko'
     developerName = 'Will Blaschko'
     developerEmail = 'will.blaschko@gmail.com'

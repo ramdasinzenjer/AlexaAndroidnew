@@ -715,6 +715,7 @@ public class AlexaManager {
      * @param callback
      */
 
+
     public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
         if (item == null || !isAudioPlayItem(item)) {
             return;

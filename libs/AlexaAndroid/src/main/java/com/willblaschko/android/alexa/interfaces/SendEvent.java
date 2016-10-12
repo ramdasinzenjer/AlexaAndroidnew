@@ -88,6 +88,7 @@ public abstract class SendEvent {
     }
 
     private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException {
+
         Request request = mRequestBuilder.build();
 
 
