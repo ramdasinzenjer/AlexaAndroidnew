@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -28,23 +29,32 @@ import okio.BufferedSource;
 public class OpenDownchannel extends SendEvent {
 
     private static final String TAG = "OpenDownchannel";
+    private Call currentCall;
+    private OkHttpClient client;
+    private String url;
+    private AsyncCallback<AvsResponse, Exception> callback;
 
-    public OpenDownchannel(final String url, final String accessToken,
-                           final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
-        if(callback != null){
+    public OpenDownchannel(final String url, final AsyncCallback<AvsResponse, Exception> callback) {
+        this.callback = callback;
+        this.url = url;
+        this.client = ClientUtil.getTLS12OkHttpClient();
+    }
+
+    public void connect(String accessToken) throws IOException {
+        if (callback != null) {
             callback.start();
         }
-        Log.i(TAG, "Starting Open Downchannel procedure");
-        long start = System.currentTimeMillis();
-        Response response = null;
-        try {
-            OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(url)
-                    .addHeader("Authorization", "Bearer " + accessToken)
-                    .build();
 
-            response = client.newCall(request).execute();
+        final Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .build();
+
+        Response response = null;
+        long start = System.currentTimeMillis();
+        try {
+            currentCall = client.newCall(request);
+            response = currentCall.execute();
             final String boundary = getBoundary(response);
             final BufferedSource source = response.body().source();
             Buffer buffer = new Buffer();
@@ -71,6 +81,12 @@ public class OpenDownchannel extends SendEvent {
             if (response != null) {
                 response.body().close();
             }
+        }
+    }
+
+    public void closeConnection() {
+        if (currentCall != null && !currentCall.isCanceled()) {
+            currentCall.cancel();
         }
     }
 

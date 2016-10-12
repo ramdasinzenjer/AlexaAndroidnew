@@ -42,6 +42,7 @@ public class AlexaManager {
     private SpeechSendVoice mSpeechSendVoice;
     private SpeechSendText mSpeechSendText;
     private SpeechSendAudio mSpeechSendAudio;
+    private OpenDownchannel openDownchannel;
     private VoiceHelper mVoiceHelper;
     private Context mContext;
     private boolean mIsRecording = false;
@@ -152,10 +153,23 @@ public class AlexaManager {
 
     }
 
+    public void closeOpenDownchannel() {
+        if (openDownchannel != null) {
+            openDownchannel.closeConnection();
+            openDownchannel = null;
+        }
+    }
+
     /**
      * Send a get {@link com.willblaschko.android.alexa.data.Directive} request to the Alexa server to open a persistent connection
      */
     public void sendOpenDownchannelDirective(@Nullable final AsyncCallback<AvsResponse, Exception> callback) {
+        if (openDownchannel != null) {
+            return;
+        }
+
+        openDownchannel = new OpenDownchannel(getDirectivesUrl(), new AsyncEventHandler(AlexaManager.this, callback));
+
         //check if the user is already logged in
         mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
 
@@ -176,7 +190,9 @@ public class AlexaManager {
                                 protected AvsResponse doInBackground(Void... params) {
                                     try {
                                         //create a new OpenDownchannel object and send our request
-                                        new OpenDownchannel(url, token, new AsyncEventHandler(AlexaManager.this, callback));
+                                        if (openDownchannel != null) {
+                                            openDownchannel.connect(token);
+                                        }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
@@ -185,6 +201,7 @@ public class AlexaManager {
                                 @Override
                                 protected void onPostExecute(AvsResponse avsResponse) {
                                     super.onPostExecute(avsResponse);
+                                    openDownchannel = null;
                                     post.postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
@@ -224,7 +241,9 @@ public class AlexaManager {
         sendEvent(Event.getSynchronizeStateEvent(), callback);
     }
 
-
+    public boolean hasOpenDownchannel() {
+        return openDownchannel != null;
+    }
 
     /**
      * Helper function to check if we're currently recording
