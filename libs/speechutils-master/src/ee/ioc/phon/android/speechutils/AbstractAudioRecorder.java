@@ -110,21 +110,19 @@ public abstract class AbstractAudioRecorder implements AudioRecorder {
      */
     protected int getStatus(int numOfBytes, int len) {
         Log.i("Read bytes: request/actual: " + len + "/" + numOfBytes);
-        if (numOfBytes == SpeechRecord.ERROR_INVALID_OPERATION) {
-            Log.e("The SpeechRecord object was not properly initialized");
-            return -1;
-        } else if (numOfBytes == SpeechRecord.ERROR_BAD_VALUE) {
-            Log.e("The parameters do not resolve to valid data and indexes.");
-            return -2;
-        } else if (numOfBytes > len) {
+        if (numOfBytes < 0) {
+            Log.e("AudioRecord error: " + numOfBytes);
+            return numOfBytes;
+        }
+        if (numOfBytes > len) {
             Log.e("Read more bytes than is buffer length:" + numOfBytes + ": " + len);
-            return -3;
+            return -100;
         } else if (numOfBytes == 0) {
             Log.e("Read zero bytes");
-            return -4;
+            return -200;
         } else if (mRecording.length < mRecordedLength + numOfBytes) {
             Log.e("Recorder buffer overflow: " + mRecordedLength);
-            return -5;
+            return -300;
         }
         return 0;
     }
@@ -219,7 +217,7 @@ public abstract class AbstractAudioRecorder implements AudioRecorder {
     public boolean isPausing() {
         double pauseScore = getPauseScore();
         Log.i("Pause score: " + pauseScore);
-        return pauseScore > 6;
+        return pauseScore > 7;
     }
 
 
@@ -227,9 +225,6 @@ public abstract class AbstractAudioRecorder implements AudioRecorder {
      * @return volume indicator that shows the average volume of the last read buffer
      */
     public float getRmsdb() {
-        if(mBuffer == null){
-            return 0;
-        }
         long sumOfSquares = getRms(mRecordedLength, mBuffer.length);
         double rootMeanSquare = Math.sqrt(sumOfSquares / (mBuffer.length / 2));
         if (rootMeanSquare > 1) {
