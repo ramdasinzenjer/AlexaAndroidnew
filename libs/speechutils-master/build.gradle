@@ -10,32 +10,30 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.ben-manes.versions' // ./gradlew dependencyUpdates -Drevision=release
 
 def versionMajor = 0
 def versionMinor = 1
 def versionPatch = 1
 def versionMajorMinorPatch = "${versionMajor}.${versionMinor}.${versionPatch}"
 
-ext { // ./gradlew bintrayUpload -xJavadoc
+ext {
     bintrayRepo = 'maven'
-    bintrayName = 'SpeechUtils'
+    bintrayName = 'AlexaAndroid'
 
-    publishedGroupId = 'com.jerrymiah.android.speechutils'
-    libraryName = 'speechutils-master'
-    artifact = 'speechutils-master'
+    publishedGroupId = 'com.willblaschko.android.alexa'
+    libraryName = 'AlexaAndroid'
+    artifact = 'AlexaAndroid'
 
-    libraryDescription = 'A library containing the speech utils from the alexa android sample app. This version is forked from Will Blaschko\'s Alexa Android Library. ' +
-            'https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/docs/java-client-sample'
+    libraryDescription = 'A library to abstract access to the Amazon Alexa service for Android applications.'
 
-    siteUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid'
-    gitUrl = 'https://github.com/JeremiahStephenson/AlexaAndroid.git'
+    siteUrl = 'https://github.com/willblaschko/AlexaAndroid'
+    gitUrl = 'https://github.com/willblaschko/AlexaAndroid.git'
 
     libraryVersion = versionMajorMinorPatch
 
-    developerId = 'jeremiahstephenson'
-    developerName = 'Jeremiah Stephenson'
-    developerEmail = 'jeremiahstephenson@gmail.com'
+    developerId = 'willblaschko'
+    developerName = 'Will Blaschko'
+    developerEmail = 'will.blaschko@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
