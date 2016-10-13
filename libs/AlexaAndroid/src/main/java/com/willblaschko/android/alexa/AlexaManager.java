@@ -154,10 +154,20 @@ public class AlexaManager {
     }
 
     public void closeOpenDownchannel() {
-        if (openDownchannel != null) {
-            openDownchannel.closeConnection();
-            openDownchannel = null;
-        }
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (openDownchannel != null) {
+                    openDownchannel.closeConnection();
+                    openDownchannel = null;
+                }
+                return null;
+            }
+            @Override
+            protected void onPostExecute(Void v) {
+                super.onPostExecute(v);
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
@@ -168,8 +178,6 @@ public class AlexaManager {
             return;
         }
 
-        openDownchannel = new OpenDownchannel(getDirectivesUrl(), new AsyncEventHandler(AlexaManager.this, callback));
-
         //check if the user is already logged in
         mAuthorizationManager.checkLoggedIn(mContext, new ImplCheckLoggedInCallback() {
 
@@ -177,37 +185,37 @@ public class AlexaManager {
             public void success(Boolean result) {
                 if (result) {
                     //if the user is logged in
-
-                    //set our URL
-                    final String url = getDirectivesUrl();
+                    openDownchannel = new OpenDownchannel(getDirectivesUrl(), new AsyncEventHandler(AlexaManager.this, callback));
                     //get our access token
                     TokenManager.getAccessToken(mAuthorizationManager.getAmazonAuthorizationManager(), mContext, new TokenManager.TokenCallback() {
                         @Override
                         public void onSuccess(final String token) {
                             //do this off the main thread
-                            new AsyncTask<Void, Void, AvsResponse>() {
+                            new AsyncTask<Void, Void, Boolean>() {
                                 @Override
-                                protected AvsResponse doInBackground(Void... params) {
+                                protected Boolean doInBackground(Void... params) {
                                     try {
                                         //create a new OpenDownchannel object and send our request
                                         if (openDownchannel != null) {
-                                            openDownchannel.connect(token);
+                                            return openDownchannel.connect(token);
                                         }
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }
-                                    return null;
+                                    return false;
                                 }
                                 @Override
-                                protected void onPostExecute(AvsResponse avsResponse) {
-                                    super.onPostExecute(avsResponse);
+                                protected void onPostExecute(Boolean canceled) {
+                                    super.onPostExecute(canceled);
                                     openDownchannel = null;
-                                    post.postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            sendOpenDownchannelDirective(callback);
-                                        }
-                                    }, 5000);
+                                    if (!canceled) {
+                                        post.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                sendOpenDownchannelDirective(callback);
+                                            }
+                                        }, 5000);
+                                    }
                                 }
                             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         }

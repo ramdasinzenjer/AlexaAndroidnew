@@ -1,7 +1,5 @@
 package com.willblaschko.android.alexa.interfaces.system;
 
-import android.util.Log;
-
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.connection.ClientUtil;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
@@ -40,23 +38,29 @@ public class OpenDownchannel extends SendEvent {
         this.client = ClientUtil.getTLS12OkHttpClient();
     }
 
-    public void connect(String accessToken) throws IOException {
+    /**
+     * Open the connection
+     * @param accessToken
+     * @return true if canceled externally
+     * @throws IOException
+     */
+    public boolean connect(String accessToken) throws IOException {
         if (callback != null) {
             callback.start();
         }
 
         final Request request = new Request.Builder()
                 .url(url)
+                .addHeader("Connection", "close")
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .build();
 
         Response response = null;
-        long start = System.currentTimeMillis();
         try {
             currentCall = client.newCall(request);
             response = currentCall.execute();
             final String boundary = getBoundary(response);
-            final BufferedSource source = response.body().source();
+            BufferedSource source = response.body().source();
             Buffer buffer = new Buffer();
             while (!source.exhausted()) {
                 source.read(buffer, 8192);
@@ -72,16 +76,15 @@ public class OpenDownchannel extends SendEvent {
                     callback.success(val);
                 }
             }
-
-            Log.i(TAG, "Downchannel open");
-            Log.i(TAG, "Open Downchannel process took: " + (System.currentTimeMillis() - start));
         } catch (IOException e) {
             onError(callback, e);
         } finally {
             if (response != null) {
-                response.body().close();
+                response.close();
             }
         }
+
+        return currentCall != null && currentCall.isCanceled();
     }
 
     public void closeConnection() {
@@ -96,7 +99,6 @@ public class OpenDownchannel extends SendEvent {
             callback.complete();
         }
     }
-
 
     @Override
     @NotNull
