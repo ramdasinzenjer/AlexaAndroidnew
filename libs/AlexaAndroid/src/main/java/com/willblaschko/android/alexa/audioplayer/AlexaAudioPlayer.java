@@ -337,15 +337,19 @@ public class AlexaAudioPlayer {
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... params) {
-                    while(mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                        int pos = mMediaPlayer.getCurrentPosition();
-                        final float percent = (float) pos / (float) mMediaPlayer.getDuration();
-                        postProgress(percent);
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    try {
+                        while (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                            int pos = mMediaPlayer.getCurrentPosition();
+                            final float percent = (float) pos / (float) mMediaPlayer.getDuration();
+                            postProgress(percent);
+                            try {
+                                Thread.sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
                     }
                     return null;
                 }
