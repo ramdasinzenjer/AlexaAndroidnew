@@ -414,3 +414,6 @@ audioPlayer.playItem(AvsSpeakItem...);
 ##Everything Else
 
 Let me know if you would like to contribute to this library!
+
+##Thanks
+[Josh](https://github.com/joshpar) for MP3 work

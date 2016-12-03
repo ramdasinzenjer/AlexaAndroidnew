@@ -85,6 +85,7 @@ public class ResponseParser {
             bytes = IOUtils.toByteArray(stream);
         } catch (IOException exp) {
             exp.printStackTrace();
+            Log.e(TAG, "Error copying bytes[]");
             return new AvsResponse();
         }
 
@@ -202,6 +203,8 @@ public class ResponseParser {
                 item = new AvsMediaPreviousCommandItem(directive.getPayload().getToken());
             }else if(directive.isTypeException()){
                 item = new AvsResponseException(directive);
+            }else{
+                Log.e(TAG, "Unknown type found");
             }
 
             if(item != null){
@@ -209,7 +212,11 @@ public class ResponseParser {
             }
         }
 
-        Log.i(TAG, "Parsing response took: " + (System.currentTimeMillis() - start));
+        Log.i(TAG, "Parsing response took: " + (System.currentTimeMillis() - start) +" size is " + response.size());
+
+        if(response.size() == 0){
+            Log.i(TAG, string(bytes));
+        }
 
         return response;
     }

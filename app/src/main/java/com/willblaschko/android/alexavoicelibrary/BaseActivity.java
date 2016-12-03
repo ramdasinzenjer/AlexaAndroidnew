@@ -107,7 +107,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
         audioPlayer.addCallback(alexaAudioPlayerCallback);
 
         //open our downchannel
-        alexaManager.sendOpenDownchannelDirective(requestCallback);
+        //alexaManager.sendOpenDownchannelDirective(requestCallback);
 
 
         //synchronize our device
@@ -127,15 +127,23 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
         @Override
         public void playerProgress(AvsItem item, long offsetInMilliseconds, float percent) {
-            Log.i(TAG, "Player percent: "+percent);
+            if(BuildConfig.DEBUG) {
+                //Log.i(TAG, "Player percent: " + percent);
+            }
             if(item instanceof AvsPlayContentItem){
                 return;
             }
             if(!playbackStartedFired){
+                if(BuildConfig.DEBUG) {
+                    Log.i(TAG, "PlaybackStarted " + item.getToken() + " fired: " + percent);
+                }
                 playbackStartedFired = true;
                 sendPlaybackStartedEvent(item);
             }
-            if(!almostDoneFired){
+            if(!almostDoneFired && percent > .8f){
+                if(BuildConfig.DEBUG) {
+                    Log.i(TAG, "AlmostDone " + item.getToken() + " fired: " + percent);
+                }
                 almostDoneFired = true;
                 if(item instanceof AvsPlayAudioItem) {
                     sendPlaybackNearlyFinishedEvent((AvsPlayAudioItem) item, offsetInMilliseconds);
@@ -152,21 +160,20 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             if(completedItem instanceof AvsPlayContentItem){
                 return;
             }
+            if(BuildConfig.DEBUG) {
+                Log.i(TAG, "Complete " + completedItem.getToken() + " fired");
+            }
             sendPlaybackFinishedEvent(completedItem);
         }
 
         @Override
         public boolean playerError(AvsItem item, int what, int extra) {
-            playerProgress(item, 10, .2f);
-            itemComplete(item);
             return false;
         }
 
         @Override
         public void dataError(AvsItem item, Exception e) {
             e.printStackTrace();
-            playerProgress(item, 10, .2f);
-            itemComplete(item);
         }
 
 
@@ -198,7 +205,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
      */
     private void sendPlaybackFinishedEvent(AvsItem item){
         if (item != null) {
-            alexaManager.sendPlaybackFinishedEvent(item, requestCallback);
+            alexaManager.sendPlaybackFinishedEvent(item, null);
             Log.i(TAG, "Sending PlaybackFinishedEvent");
         }
     }
@@ -233,7 +240,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 public void run() {
                     long totalTime = System.currentTimeMillis() - startTime;
                     Toast.makeText(BaseActivity.this, "Total request time: "+totalTime+" miliseconds", Toast.LENGTH_LONG).show();
-                    Log.i(TAG, "Total request time: "+totalTime+" miliseconds");
+                    //Log.i(TAG, "Total request time: "+totalTime+" miliseconds");
                 }
             });
         }
@@ -258,6 +265,11 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 }
             }
             Log.i(TAG, "Adding "+response.size()+" items to our queue");
+            if(BuildConfig.DEBUG){
+                for (int i = 0; i < response.size(); i++){
+                    Log.i(TAG, "\tAdding: "+response.get(i).getToken());
+                }
+            }
             avsQueue.addAll(response);
         }
         if(checkAfter) {

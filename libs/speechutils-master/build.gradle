@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:2.3.0-alpha2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1'
     }
 }
@@ -13,7 +13,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         minSdkVersion 11

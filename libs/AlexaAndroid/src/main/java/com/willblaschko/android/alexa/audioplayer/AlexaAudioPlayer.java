@@ -1,10 +1,12 @@
 package com.willblaschko.android.alexa.audioplayer;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.interfaces.AvsItem;
@@ -169,7 +171,17 @@ public class AlexaAudioPlayer {
         //reset our player
         getMediaPlayer().reset();
 
-        if(mItem instanceof AvsPlayRemoteItem){
+        if(!TextUtils.isEmpty(mItem.getToken()) && mItem.getToken().contains("PausePrompt")){
+            //a gross work around for a broke pause mp3 coming from Amazon, play the local mp3
+            try {
+                AssetFileDescriptor afd = mContext.getAssets().openFd("shhh.mp3");
+                getMediaPlayer().setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            } catch (IOException e) {
+                e.printStackTrace();
+                //bubble up our error
+                bubbleUpError(e);
+            }
+        }else if(mItem instanceof AvsPlayRemoteItem){
             //cast our item for easy access
             AvsPlayRemoteItem playItem = (AvsPlayRemoteItem) item;
             try {
@@ -319,6 +331,7 @@ public class AlexaAudioPlayer {
         @Override
         public void onCompletion(MediaPlayer mp) {
             for(Callback callback: mCallbacks){
+                callback.playerProgress(mItem, 1, 1);
                 callback.itemComplete(mItem);
             }
         }
@@ -332,6 +345,7 @@ public class AlexaAudioPlayer {
         public void onPrepared(MediaPlayer mp) {
             for(Callback callback: mCallbacks){
                 callback.playerPrepared(mItem);
+                callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), 0);
             }
             mMediaPlayer.start();
             new AsyncTask<Void, Void, Void>(){
@@ -343,7 +357,7 @@ public class AlexaAudioPlayer {
                             final float percent = (float) pos / (float) mMediaPlayer.getDuration();
                             postProgress(percent);
                             try {
-                                Thread.sleep(50);
+                                Thread.sleep(10);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }

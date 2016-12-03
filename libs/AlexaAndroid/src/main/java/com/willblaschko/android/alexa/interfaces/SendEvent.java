@@ -97,6 +97,10 @@ public abstract class SendEvent {
         try {
             Response response = currentCall.execute();
 
+            if(response.code() == HttpURLConnection.HTTP_NO_CONTENT){
+                Log.w(TAG, "Received a 204 response code from Amazon, is this expected?");
+            }
+
             final AvsResponse val = response.code() == HttpURLConnection.HTTP_NO_CONTENT ? new AvsResponse() :
                     ResponseParser.parseResponse(response.body().byteStream(), getBoundary(response));
 
