@@ -1,5 +1,7 @@
 #Alexa Voice Library
 
+##Anyone want to take over this project? Contact me##
+
 *A library and sample app to abstract access to the Amazon Alexa service for Android applications.*
 
 First and foremost, my goal with this project is to help others who have less of an understanding of Java, Android, or both, to be able to quickly and easily integrate the Amazon Alexa platform into their own applications.
@@ -47,7 +49,7 @@ allprojects {
 ```
 * Add the library to your imports (application-level build.gradle):
 ```java
-compile 'com.willblaschko.android.alexa:AlexaAndroid:2.3.2'
+compile 'com.willblaschko.android.alexa:AlexaAndroid:2.4.1'
 ```
 * Follow the process for creating a connected device detailed at the Amazon link at the top of the Readme.
 * Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder.
