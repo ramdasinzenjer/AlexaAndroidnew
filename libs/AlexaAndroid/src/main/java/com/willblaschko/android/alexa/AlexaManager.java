@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.google.android.gms.security.ProviderInstaller;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
@@ -54,13 +55,17 @@ public class AlexaManager {
     private VoiceHelper mVoiceHelper;
     private Context mContext;
     private boolean mIsRecording = false;
-    private Handler post = new Handler();
 
     private AlexaManager(Context context, String productId){
         mContext = context.getApplicationContext();
         mAuthorizationManager = new AuthorizationManager(mContext, productId);
         mVoiceHelper = VoiceHelper.getInstance(mContext);
-        ProviderInstaller.installIfNeededAsync(context, providerInstallListener);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                ProviderInstaller.installIfNeededAsync(mContext, providerInstallListener);
+            }
+        });
     }
 
     private ProviderInstaller.ProviderInstallListener providerInstallListener = new ProviderInstaller.ProviderInstallListener() {
@@ -230,12 +235,16 @@ public class AlexaManager {
                                     super.onPostExecute(canceled);
                                     openDownchannel = null;
                                     if (!canceled) {
-                                        post.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                sendOpenDownchannelDirective(callback);
-                                            }
-                                        }, 5000);
+                                        try {
+                                            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    sendOpenDownchannelDirective(callback);
+                                                }
+                                            }, 5000);
+                                        }catch (RuntimeException e){
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

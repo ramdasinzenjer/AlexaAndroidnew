@@ -37,7 +37,7 @@ public class AlexaAudioPlayer {
     private MediaPlayer mMediaPlayer;
     private Context mContext;
     private AvsItem mItem;
-    private List<Callback> mCallbacks = new ArrayList<>();
+    private final List<Callback> mCallbacks = new ArrayList<>();
 
     /**
      * Create our new AlexaAudioPlayer
@@ -111,8 +111,10 @@ public class AlexaAudioPlayer {
      * @param callback Callback that listens to changes of player state
      */
     public void addCallback(Callback callback){
-        if(!mCallbacks.contains(callback)){
-            mCallbacks.add(callback);
+        synchronized (mCallbacks) {
+            if (!mCallbacks.contains(callback)) {
+                mCallbacks.add(callback);
+            }
         }
     }
 
@@ -126,7 +128,9 @@ public class AlexaAudioPlayer {
      * @param callback Callback that listens to changes of player state
      */
     public void removeCallback(Callback callback){
-        mCallbacks.remove(callback);
+        synchronized (mCallbacks) {
+            mCallbacks.remove(callback);
+        }
     }
 
     /**
@@ -298,8 +302,12 @@ public class AlexaAudioPlayer {
      * application so we can do "almost done" type of calls
      */
     private void postProgress(final float percent){
-        for(Callback callback: mCallbacks) {
-            callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), percent);
+        synchronized (mCallbacks) {
+            for (Callback callback : mCallbacks) {
+                if(mMediaPlayer != null && callback != null) {
+                    callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), percent);
+                }
+            }
         }
     }
 
@@ -362,7 +370,7 @@ public class AlexaAudioPlayer {
                                 e.printStackTrace();
                             }
                         }
-                    }catch (NullPointerException e){
+                    }catch (NullPointerException|IllegalStateException e){
                         e.printStackTrace();
                     }
                     return null;
