@@ -166,12 +166,8 @@ public class TokenManager {
         FormBody.Builder builder = new FormBody.Builder()
                 .add(ARG_GRANT_TYPE, "refresh_token")
                 .add(ARG_REFRESH_TOKEN, refreshToken);
-        try {
             builder.add(ARG_CLIENT_ID, authorizationManager.getClientId());
-        } catch (AuthError authError) {
-            authError.printStackTrace();
-            callback.onFailure(authError);
-        }
+
 
         OkHttpClient client = ClientUtil.getTLS12OkHttpClient();
 

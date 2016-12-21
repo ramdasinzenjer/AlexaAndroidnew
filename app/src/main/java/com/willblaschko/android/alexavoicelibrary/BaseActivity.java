@@ -130,7 +130,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             if(BuildConfig.DEBUG) {
                 //Log.i(TAG, "Player percent: " + percent);
             }
-            if(item instanceof AvsPlayContentItem){
+            if(item instanceof AvsPlayContentItem || item == null){
                 return;
             }
             if(!playbackStartedFired){
@@ -157,7 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
             playbackStartedFired = false;
             avsQueue.remove(completedItem);
             checkQueue();
-            if(completedItem instanceof AvsPlayContentItem){
+            if(completedItem instanceof AvsPlayContentItem || completedItem == null){
                 return;
             }
             if(BuildConfig.DEBUG) {
