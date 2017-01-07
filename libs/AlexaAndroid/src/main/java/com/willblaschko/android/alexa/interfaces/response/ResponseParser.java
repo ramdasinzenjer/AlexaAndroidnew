@@ -1,6 +1,5 @@
 package com.willblaschko.android.alexa.interfaces.response;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -130,15 +129,7 @@ public class ResponseParser {
                 } else {
                     // get the json directive
                     String directive = data.toString(Charset.defaultCharset().displayName());
-
-
-                    /*
-                    * hacky workaround proposed by Eric@Amazon (https://forums.developer.amazon.com/questions/28021/response-about-the-shopping-list.html)
-                    * to skip any items that are PausePrompts which don't play correctly on Android (malformed MP3s?)
-                    */
-                    if(!TextUtils.isEmpty(directive) && directive.toLowerCase().contains("PausePrompt")){
-                        continue;
-                    }
+                    
                     directives.add(getDirective(directive));
                 }
                 count++;
