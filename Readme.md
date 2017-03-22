@@ -1,6 +1,6 @@
-#Alexa Voice Library
+# Alexa Voice Library
 
-##Anyone want to take over this project? Contact me##
+**Anyone want to take over this project? Contact me**
 
 *A library and sample app to abstract access to the Amazon Alexa service for Android applications.*
 
@@ -10,27 +10,27 @@ For getting started with the Amazon Alexa platform, take a look over here: https
 
 Library updated with functionality for the Alexa [v20160207 API version](https://developer.amazon.com/public/solutions/alexa/alexa-voice-service/content/avs-api-overview).
 
-##Applications
+## Applications
 
-###Sample Application
+### Sample Application
 
 Curious about what the library can do? A quick example of the three main functions (live recorded audio events, text-to-speech intents, prerecorded audio intents), plus sample code can be found in the [sample app](https://play.google.com/store/apps/details?id=com.willblaschko.android.alexavoicelibrary)
 
-####Compiling and running the sample application
+#### Compiling and running the sample application
 * Follow the process for creating a connected device detailed at the Amazon link at the top of the Readme.
 * Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder
 * Change [PRODUCT_ID](https://github.com/willblaschko/AlexaAndroid/blob/master/app/src/main/java/com/willblaschko/android/alexavoicelibrary/global/Constants.java#L8) to the value for my Alexa application that you configured for "Application Type Id" above.
 * Build and run the sample app using Gradle from the command line or Android Studio!
 
-###Production Application
+### Production Application
 
 Or see what the library can do when converted into a full package, complete with optional always-on listener: [Alexa Listens](https://play.google.com/store/apps/details?id=com.willblaschko.android.alexalistens)
 
-##Using the Library
+## Using the Library
 
 Most of the library can be accessed through the [AlexaManager](http://willblaschko.github.io/AlexaAndroid/com/willblaschko/android/alexa/AlexaManager.html) and [AlexaAudioPlayer](http://willblaschko.github.io/AlexaAndroid/com/willblaschko/android/alexa/avs/AlexaAudioPlayer.html) classes, both of which are singletons.
 
-###Installation
+### Installation
 
 * Ensure you're pulling from jcenter() for your project (project-level build.gradle):
 ```java
@@ -55,7 +55,7 @@ compile 'com.willblaschko.android.alexa:AlexaAndroid:2.4.2'
 * Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder.
 * Start integration and testing!
 
-###Library Instantiation and Basic Return Parsing
+### Library Instantiation and Basic Return Parsing
 
 ```java
 private AlexaManager alexaManager;
@@ -263,11 +263,11 @@ private void setMute(final boolean isMute){
 ```
 
 
-##Recipes
+## Recipes
 
 Here's a quick overview of the code that will likely be required to create a solid application, check the [JavaDoc](http://willblaschko.github.io/AlexaAndroid/) for more details.
 
-###Logging In To Amazon
+### Logging In To Amazon
 ```java
 //Run an async check on whether we're logged in or not
 alexaManager.checkLoggedIn(mLoggedInCheck);
@@ -279,7 +279,7 @@ alexaManager.checkLoggedIn(AsyncCallback...);
 alexaManager.logIn(AuthorizationCallback...);
 ```
 
-###Send Live Audio (bonus: check for [Record Audio](https://developer.android.com/reference/android/Manifest.permission.html#RECORD_AUDIO) permission)
+### Send Live Audio (bonus: check for [Record Audio](https://developer.android.com/reference/android/Manifest.permission.html#RECORD_AUDIO) permission)
 ```java
 private final static int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
 private static final int AUDIO_RATE = 16000;
@@ -383,7 +383,7 @@ private void stopListening(){
 }
 ```
 
-###Send Prerecorded Audio
+### Send Prerecorded Audio
 ```java
 //send prerecorded audio to Alexa, parse the callback in requestCallback
 try {
@@ -398,13 +398,13 @@ try {
 }
 ```
 
-###Send Text Request
+### Send Text Request
 ```java
 //send a text request to Alexa, parse the callback in requestCallback
 mAlexaManager.sendTextRequest(text, requestCallback);
 ```
 
-###Play Returned Content
+### Play Returned Content
 ```java
 //Play an AvsPlayItem returned by our requests
 audioPlayer.playItem(AvsPlayAudioItem...);
@@ -413,9 +413,9 @@ audioPlayer.playItem(AvsPlayAudioItem...);
 audioPlayer.playItem(AvsSpeakItem...);
 ```
 
-##Everything Else
+## Everything Else
 
 Let me know if you would like to contribute to this library!
 
-##Thanks
+## Thanks
 [Josh](https://github.com/joshpar) for MP3 work
