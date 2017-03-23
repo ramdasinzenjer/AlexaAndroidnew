@@ -19,6 +19,7 @@ import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPlayCom
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsMediaPreviousCommandItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceAllItem;
 import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsReplaceEnqueuedItem;
+import com.willblaschko.android.alexa.interfaces.playbackcontrol.AvsStopItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsAdjustVolumeItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsSetMuteItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsSetVolumeItem;
@@ -129,7 +130,7 @@ public class ResponseParser {
                 } else {
                     // get the json directive
                     String directive = data.toString(Charset.defaultCharset().displayName());
-                    
+
                     directives.add(getDirective(directive));
                 }
                 count++;
@@ -172,6 +173,8 @@ public class ResponseParser {
                 }else{
                     item = new AvsPlayRemoteItem(directive.getPayload().getToken(), url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
                 }
+            }else if(directive.isTypeStop()){
+                item = new AvsStopItem(directive.getPayload().getToken());
             }else if(directive.isTypeSetAlert()){
                 item = new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
             }else if (directive.isTypeDeleteAlert()) {

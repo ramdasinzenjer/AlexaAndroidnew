@@ -724,22 +724,7 @@ public class AlexaManager {
         sendEvent(Event.getExpectSpeechTimedOutEvent(), callback);
     }
 
-    /**
-     * Send an event to indicate that playback of media has nearly completed
-     * See: {@link #sendEvent(String, AsyncCallback)}
-     *
-     * @param item our playback item
-     * @param callback
-     */
 
-
-    public void sendPlaybackNearlyFinishedEvent(AvsItem item, final long offsetMilliseconds, final AsyncCallback<AvsResponse, Exception> callback){
-        if (item == null || !isAudioPlayItem(item)) {
-            return;
-        }
-
-        sendEvent(Event.getPlaybackNearlyFinishedEvent(item.getToken(), offsetMilliseconds), callback);
-    }
 
     /**
      * Send an event to indicate that playback of a speech item has started
@@ -753,18 +738,12 @@ public class AlexaManager {
             return;
         }
         String event;
-        try {
-            if (item instanceof AvsSpeakItem) {
-                event = Event.getSpeechStartedEvent(item.getToken());
-            } else {
-                event = Event.getPlaybackStartedEvent(item.getToken());
-            }
-        }catch (NullPointerException e){
-            if(callback != null) {
-                callback.failure(e);
-            }
-            return;
+        if (isAudioPlayItem(item)) {
+            event = Event.getPlaybackStartedEvent(item.getToken());
+        } else {
+            event = Event.getSpeechStartedEvent(item.getToken());
         }
+
         sendEvent(event, callback);
     }
 
@@ -785,6 +764,22 @@ public class AlexaManager {
         } else {
             event = Event.getSpeechFinishedEvent(item.getToken());
         }
+        sendEvent(event, callback);
+    }
+
+
+    /**
+     * Send an event to indicate that playback of an item has nearly finished
+     *
+     * @param item our speak/playback item
+     * @param callback
+     */
+    public void sendPlaybackNearlyFinishedEvent(AvsPlayAudioItem item, long milliseconds, final AsyncCallback<AvsResponse, Exception> callback){
+        if (item == null) {
+            return;
+        }
+        String event = Event.getPlaybackNearlyFinishedEvent(item.getToken(), milliseconds);
+
         sendEvent(event, callback);
     }
 

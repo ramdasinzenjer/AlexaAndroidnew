@@ -82,9 +82,9 @@ public class Event {
         String token;
         String profile;
         String format;
-        boolean muted;
-        long volume;
-        long offsetInMilliseconds;
+        Boolean muted;
+        Long volume;
+        Long offsetInMilliseconds;
 
         public String getProfile() {
             return profile;
