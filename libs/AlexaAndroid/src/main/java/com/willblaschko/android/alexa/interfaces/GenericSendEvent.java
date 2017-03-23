@@ -37,9 +37,6 @@ public class GenericSendEvent extends SendEvent{
             onError(callback, e);
         }
 
-        if (callback != null) {
-            callback.complete();
-        }
     }
 
     @NotNull
