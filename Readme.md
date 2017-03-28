@@ -51,8 +51,9 @@ allprojects {
 ```java
 compile 'com.willblaschko.android.alexa:AlexaAndroid:2.4.2'
 ```
-* Follow the process for creating a connected device detailed at the Amazon link at the top of the Readme.
-* Add your api_key.txt file (part of the Amazon process) to the app/src/main/assets folder.
+* Follow the process for creating a connected device detailed in the Amazon link at the top of the Readme.
+* Follow the instructions for adding your key and preparing the Login with Amazon activity from the ['Login with Amazon' Android Project guide](https://developer.amazon.com/public/apis/engage/login-with-amazon/docs/create_android_project.html)
+* Add your api_key.txt file (part of the Login with Amazon process detailed in the link above) to the app/src/main/assets folder.
 * Start integration and testing!
 
 ### Library Instantiation and Basic Return Parsing
