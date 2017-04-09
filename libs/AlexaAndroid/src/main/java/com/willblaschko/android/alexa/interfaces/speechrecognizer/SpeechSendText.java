@@ -5,16 +5,15 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.VoiceHelper;
-import com.willblaschko.android.alexa.audioplayer.AlexaAudioPlayer;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsException;
-import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import okhttp3.Call;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
@@ -38,7 +37,7 @@ public class SpeechSendText extends SpeechSendEvent {
      * @throws IOException
      */
     public void sendText(final Context context, final String url, final String accessToken, String text,
-                         final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
+                         final AsyncCallback<Call, Exception> callback) throws IOException {
 
         if(callback != null){
             callback.start();

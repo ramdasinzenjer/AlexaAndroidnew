@@ -1,26 +1,18 @@
 package com.willblaschko.android.alexa.interfaces;
 
-import android.util.Log;
-
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.connection.ClientUtil;
-import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.Call;
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * An abstract class that supplies a DataOutputStream which is used to send a POST request to the AVS server
@@ -70,13 +62,13 @@ public abstract class SendEvent {
      * @throws AvsException if we can't parse the response body into an {@link AvsResponse} item
      * @throws RuntimeException
      */
-    protected AvsResponse completePost() throws IOException, AvsException, RuntimeException {
+    protected Call completePost() throws IOException, AvsException, RuntimeException {
         addFormDataParts(mBodyBuilder);
         mRequestBuilder.post(mBodyBuilder.build());
         return parseResponse();
     }
 
-    protected AvsResponse completeGet() throws IOException, AvsException, RuntimeException {
+    protected Call completeGet() throws IOException, AvsException, RuntimeException {
         mRequestBuilder.get();
         return parseResponse();
     }
@@ -87,50 +79,16 @@ public abstract class SendEvent {
         }
     }
 
-    private AvsResponse parseResponse() throws IOException, AvsException, RuntimeException {
+    private Call parseResponse() throws IOException, AvsException, RuntimeException {
 
         Request request = mRequestBuilder.build();
 
 
         currentCall = ClientUtil.getTLS12OkHttpClient().newCall(request);
 
-        try {
-            Response response = currentCall.execute();
-
-            if(response.code() == HttpURLConnection.HTTP_NO_CONTENT){
-                Log.w(TAG, "Received a 204 response code from Amazon, is this expected?");
-            }
-
-            final AvsResponse val = response.code() == HttpURLConnection.HTTP_NO_CONTENT ? new AvsResponse() :
-                    ResponseParser.parseResponse(response.body().byteStream(), getBoundary(response));
-
-            response.body().close();
-
-            return val;
-        } catch (IOException exp) {
-            if (!currentCall.isCanceled()) {
-                return new AvsResponse();
-            }
-        }
-        return null;
+        return currentCall;
     }
 
-    protected String getBoundary(Response response) throws IOException {
-        Headers headers = response.headers();
-        String header = headers.get("content-type");
-        String boundary = "";
-
-        if (header != null) {
-            Pattern pattern = Pattern.compile("boundary=(.*?);");
-            Matcher matcher = pattern.matcher(header);
-            if (matcher.find()) {
-                boundary = matcher.group(1);
-            }
-        } else {
-            Log.i(TAG, "Body: " + response.body().string());
-        }
-        return boundary;
-    }
 
 
     /**

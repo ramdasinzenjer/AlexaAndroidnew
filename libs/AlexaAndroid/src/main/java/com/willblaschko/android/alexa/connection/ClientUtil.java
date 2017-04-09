@@ -3,11 +3,11 @@ package com.willblaschko.android.alexa.connection;
 import android.os.Build;
 import android.util.Log;
 
-import java.io.IOException;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -15,11 +15,9 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.CipherSuite;
+import okhttp3.ConnectionPool;
 import okhttp3.ConnectionSpec;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.TlsVersion;
 
 /**
@@ -31,10 +29,17 @@ import okhttp3.TlsVersion;
 public class ClientUtil {
 
     private static OkHttpClient mClient;
+    private static final long CONNECTION_POOL_TIMEOUT_MILLISECONDS = 60 * 60 * 1000;
 
     public static OkHttpClient getTLS12OkHttpClient(){
         if(mClient == null) {
-            OkHttpClient.Builder client = new OkHttpClient.Builder();
+
+            ConnectionPool connectionPool = new ConnectionPool(5,
+                    CONNECTION_POOL_TIMEOUT_MILLISECONDS, TimeUnit.MILLISECONDS);
+            OkHttpClient.Builder client = new OkHttpClient.Builder().connectTimeout(0, TimeUnit.MILLISECONDS)  // 0 => no timeout.
+                    .readTimeout(0, TimeUnit.MILLISECONDS)
+                    .connectionPool(connectionPool);
+
             if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
                 try {
 
@@ -70,13 +75,7 @@ public class ClientUtil {
                     Log.e("OkHttpTLSCompat", "Error while setting TLS 1.2", exc);
                 }
             }
-            client.addNetworkInterceptor(new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request request = chain.request().newBuilder().addHeader("Connection", "close").build();
-                    return chain.proceed(request);
-                }
-            });
+
             mClient = client.build();
         }
         return mClient;

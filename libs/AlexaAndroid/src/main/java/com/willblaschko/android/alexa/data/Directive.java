@@ -20,82 +20,26 @@ public class Directive {
     private Header header;
     private Payload payload;
 
-    private static final String TYPE_SPEAK = "Speak";
-    private static final String TYPE_PLAY = "Play";
-    private static final String TYPE_STOP = "Stop";
-    private static final String TYPE_SET_ALERT = "SetAlert";
-    private static final String TYPE_DELETE_ALERT = "DeleteAlert";
-    private static final String TYPE_SET_VOLUME = "SetVolume";
-    private static final String TYPE_ADJUST_VOLUME = "AdjustVolume";
-    private static final String TYPE_SET_MUTE = "SetMute";
-    private static final String TYPE_EXPECT_SPEECH = "ExpectSpeech";
-    private static final String TYPE_MEDIA_PLAY = "PlayCommandIssued";
-    private static final String TYPE_MEDIA_PAUSE = "PauseCommandIssued";
-    private static final String TYPE_MEDIA_NEXT = "NextCommandIssued";
-    private static final String TYPE_MEDIA_PREVIOUS = "PreviousCommandIssue";
-    private static final String TYPE_EXCEPTION = "Exception";
+    public static final String TYPE_SPEAK = "Speak";
+    public static final String TYPE_PLAY = "Play";
+    public static final String TYPE_STOP = "Stop";
+    public static final String TYPE_SET_ALERT = "SetAlert";
+    public static final String TYPE_DELETE_ALERT = "DeleteAlert";
+    public static final String TYPE_SET_VOLUME = "SetVolume";
+    public static final String TYPE_ADJUST_VOLUME = "AdjustVolume";
+    public static final String TYPE_SET_MUTE = "SetMute";
+    public static final String TYPE_EXPECT_SPEECH = "ExpectSpeech";
+    public static final String TYPE_MEDIA_PLAY = "PlayCommandIssued";
+    public static final String TYPE_MEDIA_PAUSE = "PauseCommandIssued";
+    public static final String TYPE_MEDIA_NEXT = "NextCommandIssued";
+    public static final String TYPE_MEDIA_PREVIOUS = "PreviousCommandIssue";
+    public static final String TYPE_EXCEPTION = "Exception";
+    public static final String TYPE_SET_ENDPOINT = "SetEndpoint";
 
     private static final String PLAY_BEHAVIOR_REPLACE_ALL = "REPLACE_ALL";
     private static final String PLAY_BEHAVIOR_ENQUEUE = "ENQUEUE";
     private static final String PLAY_BEHAVIOR_REPLACE_ENQUEUED = "REPLACE_ENQUEUED";
 
-    //DIRECTIVE TYPES
-
-    public boolean isTypeSpeak(){
-        return TextUtils.equals(header.getName(), TYPE_SPEAK);
-    }
-
-    public boolean isTypePlay(){
-        return TextUtils.equals(header.getName(), TYPE_PLAY);
-    }
-
-    public boolean isTypeStop(){
-        return TextUtils.equals(header.getName(), TYPE_STOP);
-    }
-
-    public boolean isTypeSetAlert(){
-        return TextUtils.equals(header.getName(), TYPE_SET_ALERT);
-    }
-
-    public boolean isTypeDeleteAlert() {
-        return TextUtils.equals(header.getName(), TYPE_DELETE_ALERT);
-    }
-
-    public boolean isTypeSetVolume(){
-        return TextUtils.equals(header.getName(), TYPE_SET_VOLUME);
-    }
-
-    public boolean isTypeAdjustVolume(){
-        return TextUtils.equals(header.getName(), TYPE_ADJUST_VOLUME);
-    }
-
-    public boolean isTypeSetMute(){
-        return TextUtils.equals(header.getName(), TYPE_SET_MUTE);
-    }
-
-    public boolean isTypeExpectSpeech(){
-        return TextUtils.equals(header.getName(), TYPE_EXPECT_SPEECH);
-    }
-
-    public boolean isTypeMediaPlay(){
-        return TextUtils.equals(header.getName(), TYPE_MEDIA_PLAY);
-    }
-
-    public boolean isTypeMediaPause(){
-        return TextUtils.equals(header.getName(), TYPE_MEDIA_PAUSE);
-    }
-
-    public boolean isTypeMediaNext(){
-        return TextUtils.equals(header.getName(), TYPE_MEDIA_NEXT);
-    }
-
-    public boolean isTypeMediaPrevious(){
-        return TextUtils.equals(header.getName(), TYPE_MEDIA_PREVIOUS);
-    }
-
-    public boolean isTypeException(){
-        return TextUtils.equals(header.getName(), TYPE_EXCEPTION);
-    }
 
     //PLAY BEHAVIORS
 
@@ -141,10 +85,8 @@ public class Directive {
         }
     }
     public static class Payload{
-
-
-
         String url;
+        String endpoint;
         String format;
         String token;
         String type;
@@ -207,6 +149,10 @@ public class Directive {
 
         public String getCode() {
             return code;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
         }
     }
 

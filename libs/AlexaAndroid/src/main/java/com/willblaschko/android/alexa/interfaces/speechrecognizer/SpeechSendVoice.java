@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsException;
-import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import okhttp3.Call;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
@@ -95,7 +95,7 @@ public class SpeechSendVoice extends SpeechSendEvent {
      * @deprecated Manage this state on the application side, instead, and send the audio using {@link SpeechSendAudio}
      */
     @Deprecated
-    public AvsResponse stopRecording() throws IOException, AvsException {
+    public Call stopRecording() throws IOException, AvsException {
         mIsRecording = false;
         synchronized (mLock) {
             if(mAudioRecord != null) {

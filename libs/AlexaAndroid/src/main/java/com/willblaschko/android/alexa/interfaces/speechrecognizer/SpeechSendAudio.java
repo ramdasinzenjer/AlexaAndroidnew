@@ -3,15 +3,14 @@ package com.willblaschko.android.alexa.interfaces.speechrecognizer;
 import android.util.Log;
 
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
-import com.willblaschko.android.alexa.interfaces.AvsAudioException;
 import com.willblaschko.android.alexa.interfaces.AvsException;
-import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
+import okhttp3.Call;
 import okhttp3.RequestBody;
 
 /**
@@ -37,7 +36,7 @@ public class SpeechSendAudio extends SpeechSendEvent {
      * @throws IOException
      */
     public void sendAudio(final String url, final String accessToken, @NotNull DataRequestBody requestBody,
-                          final AsyncCallback<AvsResponse, Exception> callback) throws IOException {
+                          final AsyncCallback<Call, Exception> callback) throws IOException {
         this.requestBody = requestBody;
         if(callback != null){
             callback.start();
@@ -48,14 +47,7 @@ public class SpeechSendAudio extends SpeechSendEvent {
         //call the parent class's prepareConnection() in order to prepare our URL POST
         try {
             prepareConnection(url, accessToken);
-            final AvsResponse response = completePost();
-
-            if (response != null && response.isEmpty()) {
-                if (callback != null) {
-                    callback.failure(new AvsAudioException("Nothing came back"));
-                }
-                return;
-            }
+            final Call response = completePost();
 
             if (callback != null) {
                 if (response != null) {
@@ -75,7 +67,7 @@ public class SpeechSendAudio extends SpeechSendEvent {
         cancelCall();
     }
 
-    public void onError(final AsyncCallback<AvsResponse, Exception> callback, Exception e) {
+    public void onError(final AsyncCallback<Call, Exception> callback, Exception e) {
         if(callback != null){
             callback.failure(e);
             callback.complete();

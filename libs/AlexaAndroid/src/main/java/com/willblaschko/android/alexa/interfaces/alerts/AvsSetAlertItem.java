@@ -2,6 +2,10 @@ package com.willblaschko.android.alexa.interfaces.alerts;
 
 import com.willblaschko.android.alexa.interfaces.AvsItem;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 /**
  * An AVS Item to handle setting alerts on the device
  *
@@ -34,6 +38,10 @@ public class AvsSetAlertItem extends AvsItem {
 
     public void setScheduledTime(String scheduledTime) {
         this.scheduledTime = scheduledTime;
+    }
+
+    public long getScheduledTimeMillis() throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(scheduledTime).getTime();
     }
 
     public String getType() {

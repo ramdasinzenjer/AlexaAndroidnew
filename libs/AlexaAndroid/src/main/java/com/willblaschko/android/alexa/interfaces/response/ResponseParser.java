@@ -25,6 +25,7 @@ import com.willblaschko.android.alexa.interfaces.speaker.AvsSetMuteItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsSetVolumeItem;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.AvsExpectSpeechItem;
 import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
+import com.willblaschko.android.alexa.interfaces.system.AvsSetEndpointItem;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.io.IOUtils;
@@ -42,6 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.Headers;
+import okhttp3.Response;
 
 import static okhttp3.internal.Util.UTF_8;
 
@@ -150,8 +154,6 @@ public class ResponseParser {
 
         for (Directive directive: directives) {
 
-            Log.i(TAG, "Parsing directive type: "+directive.getHeader().getNamespace()+":"+directive.getHeader().getName());
-
             if(directive.isPlayBehaviorReplaceAll()){
                 response.add(0, new AvsReplaceAllItem(directive.getPayload().getToken()));
             }
@@ -159,47 +161,7 @@ public class ResponseParser {
                 response.add(new AvsReplaceEnqueuedItem(directive.getPayload().getToken()));
             }
 
-            AvsItem item = null;
-
-            if(directive.isTypeSpeak()){
-                String cid = directive.getPayload().getUrl();
-                ByteArrayInputStream sound = audio.get(cid);
-                item = new AvsSpeakItem(directive.getPayload().getToken(), cid, sound);
-            }else if(directive.isTypePlay()){
-                String url = directive.getPayload().getAudioItem().getStream().getUrl();
-                if(url.contains("cid:")){
-                    ByteArrayInputStream sound = audio.get(url);
-                    item = new AvsPlayAudioItem(directive.getPayload().getToken(), url, sound);
-                }else{
-                    item = new AvsPlayRemoteItem(directive.getPayload().getToken(), url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
-                }
-            }else if(directive.isTypeStop()){
-                item = new AvsStopItem(directive.getPayload().getToken());
-            }else if(directive.isTypeSetAlert()){
-                item = new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
-            }else if (directive.isTypeDeleteAlert()) {
-                item = new AvsDeleteAlertItem(directive.getPayload().getToken());
-            }else if(directive.isTypeSetMute()){
-                item = new AvsSetMuteItem(directive.getPayload().getToken(), directive.getPayload().isMute());
-            }else if(directive.isTypeSetVolume()){
-                item = new AvsSetVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
-            }else if(directive.isTypeAdjustVolume()){
-                item = new AvsAdjustVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
-            }else if(directive.isTypeExpectSpeech()){
-                item = new AvsExpectSpeechItem(directive.getPayload().getToken(), directive.getPayload().getTimeoutInMilliseconds());
-            }else if(directive.isTypeMediaPlay()){
-                item = new AvsMediaPlayCommandItem(directive.getPayload().getToken());
-            }else if(directive.isTypeMediaPause()){
-                item = new AvsMediaPauseCommandItem(directive.getPayload().getToken());
-            }else if(directive.isTypeMediaNext()){
-                item = new AvsMediaNextCommandItem(directive.getPayload().getToken());
-            }else if(directive.isTypeMediaPrevious()){
-                item = new AvsMediaPreviousCommandItem(directive.getPayload().getToken());
-            }else if(directive.isTypeException()){
-                item = new AvsResponseException(directive);
-            }else{
-                Log.e(TAG, "Unknown type found");
-            }
+            AvsItem item = parseDirective(directive, audio);
 
             if(item != null){
                 response.add(item);
@@ -215,8 +177,70 @@ public class ResponseParser {
         return response;
     }
 
-    private static final void parseDirective() {
+    public static AvsItem parseDirective(Directive directive) throws IOException {
+        return parseDirective(directive, null);
+    }
 
+    public static AvsItem parseDirective(Directive directive, HashMap<String, ByteArrayInputStream> audio) throws IOException {
+        Log.i(TAG, "Parsing directive type: "+directive.getHeader().getNamespace()+":"+directive.getHeader().getName());
+        switch (directive.getHeader().getName()) {
+            case Directive.TYPE_SPEAK:
+                String cid = directive.getPayload().getUrl();
+                return new AvsSpeakItem(directive.getPayload().getToken(), cid, audio.get(cid));
+            case Directive.TYPE_PLAY:
+                String url = directive.getPayload().getAudioItem().getStream().getUrl();
+                if(url.contains("cid:")){
+                    return new AvsPlayAudioItem(directive.getPayload().getToken(), url, audio.get(url));
+                }else{
+                    return new AvsPlayRemoteItem(directive.getPayload().getToken(), url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
+                }
+            case Directive.TYPE_STOP:
+                return new AvsStopItem(directive.getPayload().getToken());
+            case Directive.TYPE_SET_ALERT:
+                return new AvsSetAlertItem(directive.getPayload().getToken(), directive.getPayload().getType(), directive.getPayload().getScheduledTime());
+            case Directive.TYPE_DELETE_ALERT:
+                return new AvsDeleteAlertItem(directive.getPayload().getToken());
+            case Directive.TYPE_SET_MUTE:
+                return new AvsSetMuteItem(directive.getPayload().getToken(), directive.getPayload().isMute());
+            case Directive.TYPE_SET_VOLUME:
+                return new AvsSetVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
+            case Directive.TYPE_ADJUST_VOLUME:
+                return new AvsAdjustVolumeItem(directive.getPayload().getToken(), directive.getPayload().getVolume());
+            case Directive.TYPE_EXPECT_SPEECH:
+                return new AvsExpectSpeechItem(directive.getPayload().getToken(), directive.getPayload().getTimeoutInMilliseconds());
+            case Directive.TYPE_MEDIA_PLAY:
+                return new AvsMediaPlayCommandItem(directive.getPayload().getToken());
+            case Directive.TYPE_MEDIA_PAUSE:
+                return new AvsMediaPauseCommandItem(directive.getPayload().getToken());
+            case Directive.TYPE_MEDIA_NEXT:
+                return new AvsMediaNextCommandItem(directive.getPayload().getToken());
+            case Directive.TYPE_MEDIA_PREVIOUS:
+                return new AvsMediaPreviousCommandItem(directive.getPayload().getToken());
+            case Directive.TYPE_SET_ENDPOINT:
+                return new AvsSetEndpointItem(directive.getPayload().getToken(), directive.getPayload().getEndpoint());
+            case Directive.TYPE_EXCEPTION:
+                return new AvsResponseException(directive);
+            default:
+                Log.e(TAG, "Unknown type found");
+                return null;
+        }
+    }
+
+    public static String getBoundary(Response response) throws IOException {
+        Headers headers = response.headers();
+        String header = headers.get("content-type");
+        String boundary = "";
+
+        if (header != null) {
+            Pattern pattern = Pattern.compile("boundary=(.*?);");
+            Matcher matcher = pattern.matcher(header);
+            if (matcher.find()) {
+                boundary = matcher.group(1);
+            }
+        } else {
+            Log.i(TAG, "Body: " + response.body().string());
+        }
+        return boundary;
     }
 
 
@@ -229,7 +253,8 @@ public class ResponseParser {
      * @param directive the string representation of our JSON object
      * @return the reflected directive
      */
-    private static Directive getDirective(String directive) throws AvsException {
+    public static Directive getDirective(String directive) throws AvsException, IllegalStateException {
+        Log.i(TAG, directive);
         Gson gson = new Gson();
         Directive.DirectiveWrapper wrapper = gson.fromJson(directive, Directive.DirectiveWrapper.class);
         if (wrapper.getDirective() == null) {

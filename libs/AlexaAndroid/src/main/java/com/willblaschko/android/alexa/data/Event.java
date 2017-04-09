@@ -23,6 +23,7 @@ public class Event {
 
     Header header;
     Payload payload;
+    List<Event> context;
 
     public Header getHeader() {
         return header;
@@ -99,7 +100,7 @@ public class Event {
 
     public static class EventWrapper{
         Event event;
-        List<Event> context;
+        List<Event> context = new ArrayList<>();
 
         public Event getEvent() {
             return event;
