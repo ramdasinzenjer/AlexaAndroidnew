@@ -149,7 +149,18 @@ public class AndroidSystemHandler {
 
     }
     private void setAlarm(AvsSetAlertItem item){
-        //todo do this
+        Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+        try {
+            i.putExtra(AlarmClock.EXTRA_HOUR, item.getHour());
+            i.putExtra(AlarmClock.EXTRA_MINUTES, item.getMinutes());
+            i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+            context.startActivity(i);
+            AlexaManager.getInstance(context)
+                    .sendEvent(Event.getSetAlertSucceededEvent(item.getToken()), null);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
 

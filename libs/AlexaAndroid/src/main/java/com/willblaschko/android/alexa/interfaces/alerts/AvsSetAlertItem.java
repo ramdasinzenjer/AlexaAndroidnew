@@ -4,6 +4,7 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -41,7 +42,18 @@ public class AvsSetAlertItem extends AvsItem {
     }
 
     public long getScheduledTimeMillis() throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(scheduledTime).getTime();
+        return getDate().getTime();
+    }
+
+    public int getHour() throws ParseException {
+        return getDate().getHours();
+    }
+    public int getMinutes() throws ParseException {
+        return getDate().getMinutes();
+    }
+
+    private Date getDate() throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(scheduledTime);
     }
 
     public String getType() {
