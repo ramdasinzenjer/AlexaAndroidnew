@@ -1,7 +1,5 @@
 #Alexa Voice Library
 
-##Anyone want to take over this project? Contact me##
-
 *A library and sample app to abstract access to the Amazon Alexa service for Android applications.*
 
 First and foremost, my goal with this project is to help others who have less of an understanding of Java, Android, or both, to be able to quickly and easily integrate the Amazon Alexa platform into their own applications.
