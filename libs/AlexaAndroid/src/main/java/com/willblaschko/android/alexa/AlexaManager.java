@@ -72,10 +72,27 @@ public class AlexaManager {
         context.startService(stickyIntent);
     }
 
+    /**
+     * Return an instance of AlexaManager
+     *
+     * @param context application context
+     * @return AlexaManager instance
+     */
     public static AlexaManager getInstance(Context context){
         return getInstance(context, null);
     }
 
+    /**
+     * Return an instance of AlexaManager
+     *
+     * Deprecated: use @getInstance(Context) instead and set R.string.alexa_product_id in your application resources,
+     * this change was made to properly support the DownChannelService
+     *
+     * @param context application context
+     * @param productId AVS product id
+     * @return AlexaManager instance
+     */
+    @Deprecated
     public static AlexaManager getInstance(Context context, String productId){
         if(mInstance == null){
             mInstance = new AlexaManager(context, productId);
