@@ -9,8 +9,7 @@
 
     <application>
 
-        <service android:name=".service.DownChannelService" />
-
+        <service android:enabled="true" android:name=".service.DownChannelService" />
         <receiver
             android:name=".service.BootReceiver"
             android:enabled="true"

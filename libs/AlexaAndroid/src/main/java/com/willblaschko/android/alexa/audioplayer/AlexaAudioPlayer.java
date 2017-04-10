@@ -1,8 +1,5 @@
 package com.willblaschko.android.alexa.audioplayer;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
@@ -16,7 +13,6 @@ import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayContentItem;
 import com.willblaschko.android.alexa.interfaces.audioplayer.AvsPlayRemoteItem;
 import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
-import com.willblaschko.android.alexa.notifications.NotificationBuilder;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -33,8 +29,6 @@ import java.util.List;
 public class AlexaAudioPlayer {
 
     public static final String TAG = "AlexaAudioPlayer";
-
-    private static final int NOTIFICATION_ID = 2121;
 
     private static AlexaAudioPlayer mInstance;
 
@@ -346,7 +340,6 @@ public class AlexaAudioPlayer {
                 callback.playerProgress(mItem, 1, 1);
                 callback.itemComplete(mItem);
             }
-            hideNotification();
         }
     };
 
@@ -361,11 +354,6 @@ public class AlexaAudioPlayer {
                 callback.playerProgress(mItem, mMediaPlayer.getCurrentPosition(), 0);
             }
             mMediaPlayer.start();
-            try {
-                showNotification(mItem);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... params) {
@@ -405,21 +393,5 @@ public class AlexaAudioPlayer {
         }
     };
 
-    private NotificationManager getNotificationMananger(){
-        return (NotificationManager) mContext.getSystemService(Activity.NOTIFICATION_SERVICE);
-    }
 
-    private void showNotification(AvsItem item) throws IOException {
-        Notification notification = new NotificationBuilder()
-                .setTitle("Alexa")
-                .setSmallIcon(android.R.drawable.ic_media_play)
-                .setDescription("Playing content.")
-                .build(mContext);
-        getNotificationMananger()
-                .notify(NOTIFICATION_ID, notification);
-    }
-    private void hideNotification(){
-        getNotificationMananger()
-                .cancel(NOTIFICATION_ID);
-    }
 }
