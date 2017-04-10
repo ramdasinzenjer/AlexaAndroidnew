@@ -44,9 +44,9 @@ public class TokenManager {
     private final static String ARG_REFRESH_TOKEN = "refresh_token";
 
 
-    public final static String PREF_ACCESS_TOKEN = "access_token";
-    public final static String PREF_REFRESH_TOKEN = "refresh_token";
-    public final static String PREF_TOKEN_EXPIRES = "token_expires";
+    public final static String PREF_ACCESS_TOKEN = "access_token_042017";
+    public final static String PREF_REFRESH_TOKEN = "refresh_token_042017";
+    public final static String PREF_TOKEN_EXPIRES = "token_expires_042017";
 
     /**
      * Get an access token from the Amazon servers for the current user

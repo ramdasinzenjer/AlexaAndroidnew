@@ -94,6 +94,7 @@ public class ResponseParser {
         }
 
         String responseString = string(bytes);
+        Log.i(TAG, responseString);
         if (checkBoundary) {
             final String responseTrim = responseString.trim();
             final String testBoundary = "--" + boundary;
