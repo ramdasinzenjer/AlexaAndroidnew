@@ -55,6 +55,7 @@ public class AndroidSystemHandler {
     }
     public void handleItems(@NonNull AvsResponse response){
         for(AvsItem current: response){
+
             Log.i(TAG, "Handling AvsItem: " + current.getClass());
             if(current instanceof AvsSetEndpointItem){
                 Log.i(TAG, "Setting URL endpoint: " + ((AvsSetEndpointItem) current).getEndpoint());

@@ -12,10 +12,14 @@ import com.willblaschko.android.alexa.AlexaManager;
 import com.willblaschko.android.alexa.TokenManager;
 import com.willblaschko.android.alexa.callbacks.ImplAsyncCallback;
 import com.willblaschko.android.alexa.connection.ClientUtil;
+import com.willblaschko.android.alexa.data.Directive;
 import com.willblaschko.android.alexa.data.Event;
+import com.willblaschko.android.alexa.interfaces.AvsItem;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
 import com.willblaschko.android.alexa.interfaces.response.ResponseParser;
 import com.willblaschko.android.alexa.system.AndroidSystemHandler;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 
@@ -102,7 +106,16 @@ public class DownChannelService extends Service {
                         while (!bufferedSource.exhausted()) {
                             String line = bufferedSource.readUtf8Line();
                             try {
-                                handler.handleDirective(ResponseParser.getDirective(line));
+                                Directive directive = ResponseParser.getDirective(line);
+                                handler.handleDirective(directive);
+
+                                //surface to our UI if it's up
+                                try {
+                                    AvsItem item = ResponseParser.parseDirective(directive);
+                                    EventBus.getDefault().post(item);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "Bad line");
                             }

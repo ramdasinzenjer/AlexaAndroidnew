@@ -24,6 +24,7 @@ import com.willblaschko.android.alexa.interfaces.speaker.AvsAdjustVolumeItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsSetMuteItem;
 import com.willblaschko.android.alexa.interfaces.speaker.AvsSetVolumeItem;
 import com.willblaschko.android.alexa.interfaces.speechrecognizer.AvsExpectSpeechItem;
+import com.willblaschko.android.alexa.interfaces.speechrecognizer.AvsStopCaptureItem;
 import com.willblaschko.android.alexa.interfaces.speechsynthesizer.AvsSpeakItem;
 import com.willblaschko.android.alexa.interfaces.system.AvsSetEndpointItem;
 
@@ -195,6 +196,8 @@ public class ResponseParser {
                 }else{
                     return new AvsPlayRemoteItem(directive.getPayload().getToken(), url, directive.getPayload().getAudioItem().getStream().getOffsetInMilliseconds());
                 }
+            case Directive.TYPE_STOP_CAPTURE:
+                return new AvsStopCaptureItem(directive.getPayload().getToken());
             case Directive.TYPE_STOP:
                 return new AvsStopItem(directive.getPayload().getToken());
             case Directive.TYPE_SET_ALERT:

@@ -204,7 +204,7 @@ public class Event {
                 .setHeaderMessageId(getUuid())
                 .setHeaderDialogRequestId("dialogRequest-321")
                 .setPayloadFormat("AUDIO_L16_RATE_16000_CHANNELS_1")
-                .setPayloadProfile("CLOSE_TALK");
+                .setPayloadProfile("NEAR_FIELD");
         return builder.toJson();
     }
 

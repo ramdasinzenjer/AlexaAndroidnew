@@ -23,6 +23,7 @@ public class Directive {
     public static final String TYPE_SPEAK = "Speak";
     public static final String TYPE_PLAY = "Play";
     public static final String TYPE_STOP = "Stop";
+    public static final String TYPE_STOP_CAPTURE = "StopCapture";
     public static final String TYPE_SET_ALERT = "SetAlert";
     public static final String TYPE_DELETE_ALERT = "DeleteAlert";
     public static final String TYPE_SET_VOLUME = "SetVolume";
