@@ -502,6 +502,7 @@ public class AlexaManager {
                             new AsyncTask<Void, Void, AvsResponse>() {
                                 @Override
                                 protected AvsResponse doInBackground(Void... params) {
+                                    Log.i(TAG, event);
                                     new GenericSendEvent(url, token, event, new AsyncEventHandler(AlexaManager.this, callback));
                                     return null;
                                 }

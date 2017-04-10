@@ -253,6 +253,37 @@ public class Event {
                 .setPlayloadOffsetInMilliseconds(offsetInMilliseconds);
         return builder.toJson();
     }
+    public static String getPlaybackControllerPlayCommandIssued(){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("PlaybackController")
+                .setHeaderName("PlayCommandIssued")
+                .setHeaderMessageId(getUuid());
+        return builder.toJson();
+    }
+
+    public static String getPlaybackControllerPauseCommandIssued(){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("PlaybackController")
+                .setHeaderName("PauseCommandIssued")
+                .setHeaderMessageId(getUuid());
+        return builder.toJson();
+    }
+
+    public static String getPlaybackControllerNextCommandIssued(){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("PlaybackController")
+                .setHeaderName("NextCommandIssued")
+                .setHeaderMessageId(getUuid());
+        return builder.toJson();
+    }
+
+    public static String getPlaybackControllerPreviousCommandIssued(){
+        Builder builder = new Builder();
+        builder.setHeaderNamespace("PlaybackController")
+                .setHeaderName("PreviousCommandIssued")
+                .setHeaderMessageId(getUuid());
+        return builder.toJson();
+    }
 
     public static String getSetAlertSucceededEvent(String token) {
         return getAlertEvent(token, "SetAlertSucceeded");
