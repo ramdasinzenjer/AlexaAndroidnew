@@ -67,7 +67,6 @@ public class AlexaManager {
 
         mAuthorizationManager = new AuthorizationManager(mContext, productId);
         mAndroidSystemHandler = AndroidSystemHandler.getInstance(context);
-        mVoiceHelper = VoiceHelper.getInstance(mContext);
         Intent stickyIntent = new Intent(context, DownChannelService.class);
         context.startService(stickyIntent);
     }
@@ -135,6 +134,9 @@ public class AlexaManager {
     }
 
     public VoiceHelper getVoiceHelper(){
+        if(mVoiceHelper == null){
+            mVoiceHelper = VoiceHelper.getInstance(mContext);
+        }
         return mVoiceHelper;
     }
 
