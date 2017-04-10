@@ -428,13 +428,13 @@ public class AlexaManager {
      * @param item our speak item
      * @param callback
      */
-    public void sendPlaybackStartedEvent(AvsItem item, final AsyncCallback<AvsResponse, Exception> callback) {
+    public void sendPlaybackStartedEvent(AvsItem item, long milliseconds, final AsyncCallback<AvsResponse, Exception> callback) {
         if (item == null) {
             return;
         }
         String event;
         if (isAudioPlayItem(item)) {
-            event = Event.getPlaybackStartedEvent(item.getToken());
+            event = Event.getPlaybackStartedEvent(item.getToken(), milliseconds);
         } else {
             event = Event.getSpeechStartedEvent(item.getToken());
         }

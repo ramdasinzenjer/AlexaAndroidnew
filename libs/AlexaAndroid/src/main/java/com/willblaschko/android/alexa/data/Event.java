@@ -345,10 +345,11 @@ public class Event {
     }
 
 
-    public static String getPlaybackStartedEvent(String token){
+    public static String getPlaybackStartedEvent(String token, long offset){
         Builder builder = new Builder();
         builder.setHeaderNamespace("AudioPlayer")
                 .setHeaderName("PlaybackStarted")
+                .setPlayloadOffsetInMilliseconds(offset)
                 .setHeaderMessageId(getUuid())
                 .setPayloadToken(token);
         return builder.toJson();
