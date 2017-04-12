@@ -225,7 +225,7 @@ public class AlexaAudioPlayer {
                 fos.close();
                 //play our newly-written file
                 getMediaPlayer().setDataSource(path.getPath());
-            } catch (IOException e) {
+            } catch (IOException|IllegalStateException e) {
                 e.printStackTrace();
                 //bubble up our error
                 bubbleUpError(e);
