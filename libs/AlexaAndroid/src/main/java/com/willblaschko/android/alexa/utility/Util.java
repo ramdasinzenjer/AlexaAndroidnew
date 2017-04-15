@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.util.UUID;
@@ -46,9 +47,13 @@ public class Util {
         return mPreferences;
     }
 
+    public static String getIdentifier(){
+        return (mPreferences != null) ? mPreferences.getString(IDENTIFIER, "") : "";
+    }
+
     public static String getUuid(){
-        String prefix = (mPreferences != null) ? mPreferences.getString(IDENTIFIER, "")+"." : "";
-        String uuid = prefix + UUID.randomUUID().toString();
-        return uuid;
+        String identifier = getIdentifier();
+        String prefix = (TextUtils.isEmpty(identifier)) ? "" : getIdentifier()+".";
+        return prefix + UUID.randomUUID().toString();
     }
 }
