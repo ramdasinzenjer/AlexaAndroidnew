@@ -150,8 +150,20 @@ public class VoiceHelper{
      * @return our TextToSpeech instance, if it's initialized
      */
     private TextToSpeech getTextToSpeech(){
-        if(!mIsIntialized){
-            throw new IllegalStateException("Text to Speech engine is not initalized");
+        int count = 0;
+
+        while(!mIsIntialized){
+            if(count < 100)
+            {
+                count++;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                throw new IllegalStateException("Text to Speech engine is not initalized");
+            }
         }
         return mTextToSpeech;
     }
