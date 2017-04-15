@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.UUID;
@@ -50,7 +49,6 @@ public class Util {
     public static String getUuid(){
         String prefix = (mPreferences != null) ? mPreferences.getString(IDENTIFIER, "")+"." : "";
         String uuid = prefix + UUID.randomUUID().toString();
-        Log.i("Util", uuid);
         return uuid;
     }
 }
