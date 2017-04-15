@@ -33,7 +33,9 @@ import okhttp3.Call;
 import okhttp3.Response;
 import okio.BufferedSink;
 
+import static com.willblaschko.android.alexa.AuthorizationManager.createCodeVerifier;
 import static com.willblaschko.android.alexa.interfaces.response.ResponseParser.getBoundary;
+import static com.willblaschko.android.alexa.utility.Util.IDENTIFIER;
 
 /**
  * The overarching instance that handles all the state when requesting intents to the Alexa Voice Service servers, it creates all the required instances and confirms that users are logged in
@@ -69,6 +71,13 @@ public class AlexaManager {
         mAndroidSystemHandler = AndroidSystemHandler.getInstance(context);
         Intent stickyIntent = new Intent(context, DownChannelService.class);
         context.startService(stickyIntent);
+
+        if(!Util.getPreferences(mContext).contains(IDENTIFIER)){
+            Util.getPreferences(mContext)
+                    .edit()
+                    .putString(IDENTIFIER, createCodeVerifier(30))
+                    .apply();
+        }
     }
 
     /**

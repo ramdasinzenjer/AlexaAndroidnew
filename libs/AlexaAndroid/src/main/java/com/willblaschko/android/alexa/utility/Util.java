@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
+
+import java.util.UUID;
 
 /**
  * A collection of utility functions.
@@ -14,6 +17,7 @@ import android.widget.Toast;
  */
 public class Util {
     private static SharedPreferences mPreferences;
+    public static final String IDENTIFIER = "identifier";
 
     /**
      * Show an authorization toast on the main thread to make sure the user sees it
@@ -41,5 +45,12 @@ public class Util {
             mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         }
         return mPreferences;
+    }
+
+    public static String getUuid(){
+        String prefix = (mPreferences != null) ? mPreferences.getString(IDENTIFIER, "")+"." : "";
+        String uuid = prefix + UUID.randomUUID().toString();
+        Log.i("Util", uuid);
+        return uuid;
     }
 }

@@ -137,6 +137,7 @@ public class AuthorizationManager {
             TokenManager.getAccessToken(mContext, authCode, getCodeVerifier(), mAuthManager, new TokenManager.TokenResponseCallback() {
                 @Override
                 public void onSuccess(TokenManager.TokenResponse response) {
+
                     if(mCallback != null){
                         mCallback.onSuccess();
                     }
@@ -216,16 +217,23 @@ public class AuthorizationManager {
      * Create a new code verifier for our token exchanges
      * @return the new code verifier
      */
-    public static String createCodeVerifier() {
+    static String createCodeVerifier() {
+        return createCodeVerifier(128);
+    }
+
+    /**
+     * Create a new code verifier for our token exchanges
+     * @return the new code verifier
+     */
+    static String createCodeVerifier(int count) {
         char[] chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
-        for (int i = 0; i < 128; i++) {
+        for (int i = 0; i < count; i++) {
             char c = chars[random.nextInt(chars.length)];
             sb.append(c);
         }
-        String verifier = sb.toString();
-        return verifier;
+        return sb.toString();
     }
 
 
@@ -237,7 +245,7 @@ public class AuthorizationManager {
      * @param arg our hashed string
      * @return a new Base64 encoded string based on the hashed string
      */
-    public static String base64UrlEncode(byte[] arg)
+    private static String base64UrlEncode(byte[] arg)
     {
         String s = Base64.encodeToString(arg, 0); // Regular base64 encoder
         s = s.split("=")[0]; // Remove any trailing '='s
@@ -251,7 +259,7 @@ public class AuthorizationManager {
      * @param password
      * @return
      */
-    public static byte[] getHash(String password) {
+    private static byte[] getHash(String password) {
         MessageDigest digest=null;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -259,9 +267,7 @@ public class AuthorizationManager {
             e1.printStackTrace();
         }
         digest.reset();
-        byte[] response = digest.digest(password.getBytes());
-
-        return response;
+        return digest.digest(password.getBytes());
     }
 
 

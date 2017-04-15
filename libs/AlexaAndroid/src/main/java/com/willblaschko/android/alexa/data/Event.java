@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import static com.willblaschko.android.alexa.utility.Util.getUuid;
 
 /**
  * A catch-all Event to classify return responses from the Amazon Alexa v20160207 API
@@ -373,10 +374,7 @@ public class Event {
         return builder.toJson();
     }
 
-    private static String getUuid(){
-        String uuid = UUID.randomUUID().toString();
-        return uuid;
-    }
+
 }
 
 
