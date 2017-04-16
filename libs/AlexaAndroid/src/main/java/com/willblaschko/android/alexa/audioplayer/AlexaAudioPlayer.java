@@ -358,9 +358,9 @@ public class AlexaAudioPlayer {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
-                        while (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                            int pos = mMediaPlayer.getCurrentPosition();
-                            final float percent = (float) pos / (float) mMediaPlayer.getDuration();
+                        while (getMediaPlayer() != null && getMediaPlayer().isPlaying()) {
+                            int pos = getMediaPlayer().getCurrentPosition();
+                            final float percent = (float) pos / (float) getMediaPlayer().getDuration();
                             postProgress(percent);
                             try {
                                 Thread.sleep(10);

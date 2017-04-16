@@ -48,7 +48,7 @@ public class SpeechSendText extends SpeechSendEvent {
 
         //add a pause to the end to be better understood
         if(!TextUtils.isEmpty(text)){
-            text = text + ".";
+            text = "... " + text + " ...";
         }
 
         final String input = text;

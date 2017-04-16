@@ -38,7 +38,7 @@ public class VoiceHelper{
         mContext = context.getApplicationContext();
         mTextToSpeech = new TextToSpeech(mContext, mInitListener);
         mTextToSpeech.setPitch(.8f);
-        mTextToSpeech.setSpeechRate(1.6f);
+        mTextToSpeech.setSpeechRate(1.3f);
         mTextToSpeech.setOnUtteranceProgressListener(mUtteranceProgressListener);
     }
 
