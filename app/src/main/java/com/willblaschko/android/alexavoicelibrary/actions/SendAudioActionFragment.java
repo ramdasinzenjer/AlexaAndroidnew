@@ -9,12 +9,19 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.willblaschko.android.alexa.audioplayer.AlexaAudioPlayer;
 import com.willblaschko.android.alexa.requestbody.DataRequestBody;
+import com.willblaschko.android.alexavoicelibrary.BaseActivity;
 import com.willblaschko.android.alexavoicelibrary.BuildConfig;
 import com.willblaschko.android.alexavoicelibrary.R;
+import com.willblaschko.android.alexavoicelibrary.utility.ABC;
 import com.willblaschko.android.recorderview.RecorderView;
 
 import java.io.IOException;
@@ -28,14 +35,14 @@ import okio.BufferedSink;
  */
 
 public class SendAudioActionFragment extends BaseListenerFragment {
-
     private static final String TAG = "SendAudioActionFragment";
 
     private final static int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
     private static final int AUDIO_RATE = 16000;
     private RawAudioRecorder recorder;
     private RecorderView recorderView;
-
+    private Button tmp;
+    private AlexaAudioPlayer audioPlayer;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -45,8 +52,40 @@ public class SendAudioActionFragment extends BaseListenerFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recorderView = (RecorderView) view.findViewById(R.id.recorder);
-        recorderView.setOnClickListener(new View.OnClickListener() {
+       /* recorderView = (RecorderView) view.findViewById(R.id.recorder);*/
+        audioPlayer = AlexaAudioPlayer.getInstance(getActivity());
+        tmp = (Button) view.findViewById(R.id.temp);
+        tmp.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(audioPlayer != null){
+                            audioPlayer.stop();
+                        }
+                        if(recorder != null) {
+                            recorder.stop();
+                            recorder.release();
+                            recorder = null;
+
+                        }
+
+                        tmp.setBackground(getResources().getDrawable(R.drawable.pressed));
+                        startListening();
+                       /* if(recorder == null) {
+
+                        }*/
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        /*Toast.makeText(getActivity(), "stop", Toast.LENGTH_SHORT).show();*/
+                        tmp.setBackground(getResources().getDrawable(R.drawable.microphone));
+                        stopListening();
+                        return true;
+                }
+                return false;
+            }
+        });
+     /*   recorderView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(recorder == null) {
@@ -55,7 +94,8 @@ public class SendAudioActionFragment extends BaseListenerFragment {
                     stopListening();
                 }
             }
-        });
+        });*/
+
     }
 
     @Override
@@ -116,14 +156,14 @@ public class SendAudioActionFragment extends BaseListenerFragment {
             while (recorder != null && !recorder.isPausing()) {
                 if(recorder != null) {
                     final float rmsdb = recorder.getRmsdb();
-                    if(recorderView != null) {
+                  /*  if(recorderView != null) {
                         recorderView.post(new Runnable() {
                             @Override
                             public void run() {
                                 recorderView.setRmsdbLevel(rmsdb);
                             }
                         });
-                    }
+                    }*/
                     if(sink != null && recorder != null) {
                         sink.write(recorder.consumeRecording());
                     }

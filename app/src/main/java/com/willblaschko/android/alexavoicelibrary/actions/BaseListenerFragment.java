@@ -1,5 +1,6 @@
 package com.willblaschko.android.alexavoicelibrary.actions;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import com.willblaschko.android.alexa.AlexaManager;
 import com.willblaschko.android.alexa.callbacks.AsyncCallback;
 import com.willblaschko.android.alexa.interfaces.AvsResponse;
+import com.willblaschko.android.alexavoicelibrary.ListActMent;
 import com.willblaschko.android.alexavoicelibrary.R;
 
 import static com.willblaschko.android.alexavoicelibrary.global.Constants.PRODUCT_ID;
@@ -59,8 +61,11 @@ public abstract class BaseListenerFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.view_code:
-                DisplayCodeFragment fragment = DisplayCodeFragment.getInstance(getTitle(), getRawCode());
-                loadFragment(fragment);
+               /* DisplayCodeFragment fragment = DisplayCodeFragment.getInstance(getTitle(), getRawCode());
+                loadFragment(fragment);*/
+                /*Intent i = new Intent(getContext(),ListActMent.class);
+                startActivity(i);
+                getActivity().overridePendingTransition(R.anim.slidein,R.anim.slideoout);*/
                 return true;
         }
         return super.onOptionsItemSelected(item);

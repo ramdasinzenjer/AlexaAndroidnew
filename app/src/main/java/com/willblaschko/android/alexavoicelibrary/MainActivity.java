@@ -131,4 +131,12 @@ public class MainActivity extends BaseActivity implements ActionsFragment.Action
         getSupportFragmentManager().popBackStack();
         return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        {
+            finish();
+        }
+    }
 }

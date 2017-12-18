@@ -5,5 +5,5 @@ package com.willblaschko.android.alexavoicelibrary.global;
  */
 
 public class Constants {
-    public static final String PRODUCT_ID = "interactive_conversation";
+    public static final String PRODUCT_ID = "AlexaVoiceAppInz";
 }

@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
  * @author will on 5/30/2016.
  */
 
-public class DisplayCodeFragment extends Fragment {
+public class    DisplayCodeFragment extends Fragment {
 
     private final static String ARG_TITLE = "title";
     private final static String ARG_RAW_CODE = "raw_code";

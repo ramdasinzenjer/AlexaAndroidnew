@@ -8,9 +8,7 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-/**
- * @author will on 3/6/2016.
- */
+
 public class LoginWebViewActivity extends Activity {
 
     private static final String TAG = "LoginWebViewActivity";

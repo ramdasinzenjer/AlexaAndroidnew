@@ -69,7 +69,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if(audioPlayer != null){
             audioPlayer.stop();
@@ -239,7 +239,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 @Override
                 public void run() {
                     long totalTime = System.currentTimeMillis() - startTime;
-                    Toast.makeText(BaseActivity.this, "Total request time: "+totalTime+" miliseconds", Toast.LENGTH_LONG).show();
                     //Log.i(TAG, "Total request time: "+totalTime+" miliseconds");
                 }
             });
@@ -253,7 +252,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
     private void handleResponse(AvsResponse response){
         boolean checkAfter = (avsQueue.size() == 0);
         if(response != null){
-            //if we have a clear queue item in the list, we need to clear the current queue before proceeding
+            //if we have a clear queue item in the ListActMent, we need to clear the current queue before proceeding
             //iterate backwards to avoid changing our array positions and getting all the nasty errors that come
             //from doing that
             for(int i = response.size() - 1; i >= 0; i--){
@@ -280,10 +279,10 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
 
     /**
      * Check our current queue of items, and if we have more to parse (once we've reached a play or listen callback) then proceed to the
-     * next item in our list.
+     * next item in our ListActMent.
      *
      * We're handling the AvsReplaceAllItem in handleResponse() because it needs to clear everything currently in the queue, before
-     * the new items are added to the list, it should have no function here.
+     * the new items are added to the ListActMent, it should have no function here.
      */
     private void checkQueue() {
 
@@ -294,7 +293,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BaseList
                 @Override
                 public void run() {
                     long totalTime = System.currentTimeMillis() - startTime;
-                    Toast.makeText(BaseActivity.this, "Total interaction time: "+totalTime+" miliseconds", Toast.LENGTH_LONG).show();
                     Log.i(TAG, "Total interaction time: "+totalTime+" miliseconds");
                 }
             });

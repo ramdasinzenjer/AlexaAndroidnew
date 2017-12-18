@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/ConnectSkils"
+        android:title="Skills" />
+    <item android:id="@+id/Rate"
+        android:title="Rate" />
+    <item android:id="@+id/share"
+        android:title="Logout" />
+</menu>

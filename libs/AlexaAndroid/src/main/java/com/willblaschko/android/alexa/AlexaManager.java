@@ -580,6 +580,8 @@ public class AlexaManager {
                 .toString();
     }
 
+    public void sendPlaybackStartedEvent(AvsItem item, Object o) {
+    }
 
 
     private static class AsyncEventHandler implements AsyncCallback<Call, Exception>{

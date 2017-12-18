@@ -1,19 +1,20 @@
 apply plugin: 'com.android.application'
 
-
+/*
 if (file('signing.gradle').exists()) {
     apply from: 'signing.gradle'
 }else{
     throw new TaskExecutionException(null, new Exception("Unable to find signing.gradle, please replace Android buildTypes > signing configs with your own configuration."));
 }
+*/
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.willblaschko.android.alexavoicelibrary"
-        minSdkVersion 21
+        minSdkVersion 22
 
         targetSdkVersion 24
         versionCode 5
@@ -23,18 +24,18 @@ android {
 
 
     buildTypes {
-        debug{
+        debug {
             versionNameSuffix " Debug"
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.releaseConfig
+            /*signingConfig signingConfigs.releaseConfig*/
         }
         release {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.releaseConfig
+            /*  signingConfig signingConfigs.releaseConfig*/
         }
     }
 
@@ -48,6 +49,9 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.gms:play-services-maps:+'
+    implementation 'com.android.support:support-v4:24.2.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.2.1'
@@ -60,4 +64,7 @@ dependencies {
     compile project(path: ':libs:speechutils-master')
 
 }
+
+
+
 

@@ -9,11 +9,12 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 
 /**
  * @author willb_000 on 5/5/2016.
  */
-public class RecorderView extends View {
+public class RecorderView extends View  {
 
     private final static String TAG = "RecorderView";
 

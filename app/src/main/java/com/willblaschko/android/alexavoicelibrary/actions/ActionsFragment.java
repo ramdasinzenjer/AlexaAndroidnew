@@ -15,15 +15,12 @@ import com.willblaschko.android.alexavoicelibrary.actions.adapter.ActionFragment
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author will on 5/30/2016.
- */
-
 public class ActionsFragment extends BaseListenerFragment {
 
 
     @Override
     public void startListening() {
+
 
     }
 
@@ -53,40 +50,39 @@ public class ActionsFragment extends BaseListenerFragment {
         recycler.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
     }
 
-    private List<ActionFragmentAdapter.ActionFragmentItem> getItems(){
+    private List<ActionFragmentAdapter.ActionFragmentItem> getItems() {
         List<ActionFragmentAdapter.ActionFragmentItem> items = new ArrayList<>();
-
-        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_audio),
+        loadFragment(new SendAudioActionFragment());
+        items.add(new ActionFragmentAdapter.ActionFragmentItem(" Launch connect ",
                 R.drawable.ic_stat_microphone,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        loadFragment(new SendAudioActionFragment());
+
                     }
                 }));
 
-        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_prerecorded),
+        /*items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_prerecorded),
                 android.R.drawable.ic_menu_compass,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        loadFragment(new SendPrerecordedActionFragment());
+                       *//* loadFragment(new SendPrerecordedActionFragment());*//*
                     }
-                }));
-        items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
+                }));*/
+      /*  items.add(new ActionFragmentAdapter.ActionFragmentItem(getString(R.string.fragment_action_send_text),
                 android.R.drawable.ic_menu_edit,
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         loadFragment(new SendTextActionFragment());
                     }
-                }));
+                }));*/
 
         return items;
     }
 
-
-    public interface ActionFragmentInterface{
+    public interface ActionFragmentInterface {
         void loadFragment(Fragment fragment, boolean addToBackstack);
     }
 }
